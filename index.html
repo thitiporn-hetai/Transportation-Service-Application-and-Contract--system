@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>ใบสมัครงานและสัญญาจ้างขนส่ง - บริษัท เหอไท่ เน็ตเวิร์ค เทคโนโลยี จำกัด</title>
-  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.1.7/dist/signature_pad.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
   <style>
@@ -31,8 +31,8 @@
       background: #f8fafc;
       padding: 16px 20px;
       border-radius: 8px;
-      font-size: 13.5px;
-      line-height: 1.65;
+      font-size: 14px;
+      line-height: 1.75;
       color: #1e293b;
       margin-bottom: 12px;
       white-space: pre-line;
@@ -66,7 +66,7 @@
     .tab-btn { flex: 1; min-width: 140px; padding: 9px; border: none; border-radius: 6px; font-size: 13.5px; font-weight: 600; cursor: pointer; background: transparent; color: #475569; }
     .tab-btn.active { background: #2563eb; color: #fff; }
 
-    /* ================= สไตล์สำหรับเอกสาร PDF (จัดระเบียบ A4 เป๊ะ) ================= */
+    /* ================= สไตล์สำหรับเอกสาร PDF (แก้ฟอนต์ทับ + จัดหน้า A4) ================= */
     #preview-section { display: none; margin-top: 10px; }
     .pdf-scroll-wrap { overflow-x: auto; background: #e5e7eb; padding: 12px; border-radius: 8px; }
     #pdf-content {
@@ -74,11 +74,15 @@
       margin: 0 auto;
       background: #fff;
       color: #000;
+      font-family: 'Sarabun', sans-serif;
+      font-weight: 400;
+      letter-spacing: 0.1px;
+      text-rendering: geometricPrecision;
     }
     .pdf-page {
-      padding: 8mm 10mm;
-      line-height: 1.58;
-      font-size: 13.2px;
+      padding: 6mm 8mm;
+      line-height: 1.78;
+      font-size: 13px;
       background: #fff;
       position: relative;
     }
@@ -96,31 +100,32 @@
       border-bottom: 1.5px solid #111827;
       padding-bottom: 8px;
     }
-    .doc-title { font-size: 16.5px; font-weight: 700; margin: 0; line-height: 1.35; }
-    .doc-subtitle { font-size: 12.5px; color: #1f2937; margin-top: 4px; }
-    .fill-data { font-weight: 700; text-decoration: underline; padding: 0 3px; color: #000; }
+    .doc-title { font-size: 16px; font-weight: 700; margin: 0; line-height: 1.45; }
+    .doc-subtitle { font-size: 12.5px; color: #1f2937; margin-top: 4px; line-height: 1.6; }
+    .fill-data { font-weight: 700; text-decoration: underline; padding: 0 2px; color: #000; }
 
     /* ตารางใบสมัครหน้า 1 */
-    .app-table { width: 100%; border-collapse: collapse; margin-bottom: 14px; font-size: 12.8px; }
+    .app-table { width: 100%; border-collapse: collapse; margin-bottom: 14px; font-size: 12.5px; line-height: 1.65; }
     .app-table th, .app-table td { border: 1px solid #6b7280; padding: 7px 9px; text-align: left; vertical-align: top; }
     .app-table th { background: #f3f4f6; width: 22%; font-weight: 700; color: #111827; }
     .app-table td { width: 28%; }
 
     .doc-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 8px; }
-    .doc-card { border: 1px solid #9ca3af; padding: 8px; text-align: center; border-radius: 4px; font-size: 12px; min-height: 135px; display: flex; flex-direction: column; justify-content: space-between; }
+    .doc-card { border: 1px solid #9ca3af; padding: 8px; text-align: center; border-radius: 4px; font-size: 12px; line-height: 1.5; min-height: 135px; display: flex; flex-direction: column; justify-content: space-between; }
     .doc-card img { max-width: 100%; max-height: 105px; object-fit: contain; margin: 4px auto 0; display: block; }
 
     /* เนื้อหาสัญญาและเอกสารแนบท้าย */
-    .contract-body p { margin: 0 0 8px 0; text-align: left; }
-    .contract-body ul, .contract-body ol { margin: 4px 0 10px 22px; padding: 0; }
-    .contract-body li { margin-bottom: 4px; }
-    .clause-title { font-weight: 700; font-size: 13.8px; margin-top: 10px; margin-bottom: 4px; color: #000; }
+    .contract-body p { margin: 0 0 9px 0; text-align: left; line-height: 1.78; }
+    .contract-body ul, .contract-body ol { margin: 4px 0 10px 22px; padding: 0; line-height: 1.78; }
+    .contract-body li { margin-bottom: 5px; line-height: 1.78; }
+    .clause-title { font-weight: 700; font-size: 13.5px; line-height: 1.65; margin-top: 12px; margin-bottom: 5px; color: #000; }
     .rate-box {
       background: #f8fafc;
       border: 1px solid #cbd5e1;
       padding: 8px 12px;
       border-radius: 4px;
-      margin: 6px 0 8px 0;
+      margin: 6px 0 10px 0;
+      line-height: 1.75;
     }
 
     /* ลายเซ็น */
@@ -129,6 +134,7 @@
       display: flex;
       justify-content: space-between;
       text-align: center;
+      line-height: 1.65;
       page-break-inside: avoid;
       break-inside: avoid;
     }
@@ -475,12 +481,12 @@
           </div>
 
           <div class="contract-body">
-            <p>สัญญาฉบับนี้ทำขึ้นระหว่าง: <strong>บริษัท เหอไท่ เน็ตเวิร์ค เทคโนโลยี จำกัด</strong> สำนักงานตั้งอยู่เลขที่ 1152 ถนนพระรามที่ 4 แขวงคลองเตย เขตคลองเตย กรุงเทพมหานคร ซึ่งต่อไปในสัญญานี้จะเรียกว่า <strong>"ผู้ว่าจ้าง"</strong> ฝ่ายหนึ่ง กับ</p>
-            <p>ชื่อ <span class="fill-data" data-bind="fullName"></span> อายุ <span class="fill-data" data-bind="age"></span> ปี อยู่บ้านเลขที่ <span class="fill-data" data-bind="address"></span> โทรศัพท์ <span class="fill-data" data-bind="phone"></span> เลขบัตรประจำตัวประชาชน <span class="fill-data" data-bind="idCard"></span> (บุคคลติดต่อฉุกเฉิน: <span class="fill-data" data-bind="emerName"></span> [<span class="fill-data" data-bind="emerRelation"></span>] โทร. <span class="fill-data" data-bind="emerPhone"></span>) ซึ่งต่อไปในสัญญานี้จะเรียกว่า <strong>"ผู้รับจ้าง"</strong> อีกฝ่ายหนึ่ง ทั้งสองฝ่ายตกลงทำสัญญากันโดยมีข้อความและเงื่อนไขดังต่อไปนี้:</p>
+            <p>สัญญาฉบับนี้ทำขึ้นระหว่าง: บริษัท เหอไท่ เน็ตเวิร์ค เทคโนโลยี จำกัด สำนักงานตั้งอยู่เลขที่ 1152 ถนนพระรามที่ 4 แขวงคลองเตย เขตคลองเตย กรุงเทพมหานคร ซึ่งต่อไปในสัญญานี้จะเรียกว่า "ผู้ว่าจ้าง" ฝ่ายหนึ่ง กับ</p>
+            <p>ชื่อ <span class="fill-data" data-bind="fullName"></span> อายุ <span class="fill-data" data-bind="age"></span> ปี อยู่บ้านเลขที่ <span class="fill-data" data-bind="address"></span> โทรศัพท์ <span class="fill-data" data-bind="phone"></span> เลขบัตรประจำตัวประชาชน <span class="fill-data" data-bind="idCard"></span> (บุคคลติดต่อฉุกเฉิน: <span class="fill-data" data-bind="emerName"></span> [<span class="fill-data" data-bind="emerRelation"></span>] โทร. <span class="fill-data" data-bind="emerPhone"></span>) ซึ่งต่อไปในสัญญานี้จะเรียกว่า "ผู้รับจ้าง" อีกฝ่ายหนึ่ง ทั้งสองฝ่ายตกลงทำสัญญากันโดยมีข้อความและเงื่อนไขดังต่อไปนี้:</p>
 
             <div class="clause-title">ข้อ 1. วัตถุประสงค์และลักษณะงาน</div>
-            <p>1.1 ผู้ว่าจ้างตกลงจ้าง และผู้รับจ้างตกลงรับจ้างขนส่งและกระจายพัสดุภัณฑ์ไปยังบ้านเรือนหรือสถานที่ตามที่ผู้ว่าจ้างกำหนด โดยใช้ยานพาหนะของผู้รับจ้างเอง คือ <strong>รถจักรยานยนต์ (Biker) / รถยนต์ (4W Driver)</strong> (ประเภทที่สมัคร: <span class="fill-data" data-bind="position"></span>) ทะเบียน <span class="fill-data" data-bind="plateNumber"></span> พื้นที่/Hub <span class="fill-data" data-bind="hubLocation"></span></p>
-            <p><strong>1.1.1 เอกสารสำคัญรถขนส่งที่ต้องส่งมอบ ได้แก่:</strong></p>
+            <p>1.1 ผู้ว่าจ้างตกลงจ้าง และผู้รับจ้างตกลงรับจ้างขนส่งและกระจายพัสดุภัณฑ์ไปยังบ้านเรือนหรือสถานที่ตามที่ผู้ว่าจ้างกำหนด โดยใช้ยานพาหนะของผู้รับจ้างเอง คือ รถจักรยานยนต์ (Biker) / รถยนต์ (4W Driver) (ประเภทที่สมัคร: <span class="fill-data" data-bind="position"></span>) ทะเบียน <span class="fill-data" data-bind="plateNumber"></span> พื้นที่/Hub <span class="fill-data" data-bind="hubLocation"></span></p>
+            <p class="clause-title" style="margin-top: 8px; font-size: 13px;">1.1.1 เอกสารสำคัญรถขนส่งที่ต้องส่งมอบ ได้แก่:</p>
             <ul>
               <li>สำเนาใบอนุญาตประกอบกิจการขนส่ง ของผู้รับจ้าง ซึ่งได้รับอนุญาตถูกต้องตามกฎหมาย</li>
               <li>สำเนารายการคู่มือจดทะเบียนรถขนส่ง และใบตรวจสภาพรถขนส่ง ที่ได้รับการตรวจสภาพอย่างถูกต้องตามกฎหมายและเป็นไปตามมาตรฐานของงานรับจ้างขนส่งแต่ละประเภท</li>
@@ -500,7 +506,7 @@
               <div><strong>1. รถจักรยานยนต์ (Biker) :</strong> 8 บาทต่อชิ้น</div>
               <div><strong>2. รถยนต์ (4W Driver) :</strong> 13 บาทต่อชิ้น (กรุงเทพและสมุทรปราการ) / 12 บาทต่อชิ้น (ปทุมธานี, นนทบุรี, สมุทรสาคร)</div>
             </div>
-            <p><strong>หมายเหตุ:</strong> การคำนวณค่าตอบแทนให้พิจารณาจากจำนวนพัสดุที่จัดส่งสำเร็จตามหลักเกณฑ์และเงื่อนไขที่บริษัทกำหนด โดยอัตราค่าตอบแทนอาจมีการเปลี่ยนแปลงตามพื้นที่ให้บริการและประกาศของสำนักงานใหญ่ ทั้งนี้ ให้ยึดอัตราค่าตอบแทนตามประกาศล่าสุดของบริษัทเป็นหลัก สำหรับพนักงานขนส่งที่ใช้รถจักรยานยนต์ (Biker) จะได้รับค่าตอบแทนในอัตรา 8 บาทต่อชิ้น และรถยนต์ (4W Driver) จะได้รับค่าตอบแทนในอัตรา 13 บาทต่อชิ้น (กรุงเทพและสมุทรปราการ) และ 12 บาทต่อชิ้น (ปทุมธานี, นนทบุรี, สมุทรสาคร) โดยคำนวณตามจำนวนพัสดุที่จัดส่งสำเร็จทุกชิ้น เว้นแต่บริษัทจะมีประกาศเปลี่ยนแปลงเป็นลายลักษณ์อักษรในภายหลัง</p>
+            <p>หมายเหตุ: การคำนวณค่าตอบแทนให้พิจารณาจากจำนวนพัสดุที่จัดส่งสำเร็จตามหลักเกณฑ์และเงื่อนไขที่บริษัทกำหนด โดยอัตราค่าตอบแทนอาจมีการเปลี่ยนแปลงตามพื้นที่ให้บริการและประกาศของสำนักงานใหญ่ ทั้งนี้ ให้ยึดอัตราค่าตอบแทนตามประกาศล่าสุดของบริษัทเป็นหลัก สำหรับพนักงานขนส่งที่ใช้รถจักรยานยนต์ (Biker) จะได้รับค่าตอบแทนในอัตรา 8 บาทต่อชิ้น และรถยนต์ (4W Driver) จะได้รับค่าตอบแทนในอัตรา 13 บาทต่อชิ้น (กรุงเทพและสมุทรปราการ) และ 12 บาทต่อชิ้น (ปทุมธานี, นนทบุรี, สมุทรสาคร) โดยคำนวณตามจำนวนพัสดุที่จัดส่งสำเร็จทุกชิ้น เว้นแต่บริษัทจะมีประกาศเปลี่ยนแปลงเป็นลายลักษณ์อักษรในภายหลัง</p>
             <p>3.2 การจ่ายเงินจะทำการโอนเข้าบัญชีธนาคารของผู้รับจ้าง (<span class="fill-data" data-bind="bankName"></span> ชื่อบัญชี <span class="fill-data" data-bind="bankAccountName"></span> เลขที่ <span class="fill-data" data-bind="bankAccount"></span>) ทุกๆ วันพุธ ของสัปดาห์ โดยจะมีการหักภาษี ณ ที่จ่าย 1% ตามที่กฎหมายกำหนด</p>
 
             <div class="clause-title">ข้อ 4. ความรับผิดชอบของผู้รับจ้าง</div>
@@ -548,7 +554,7 @@
           </div>
 
           <div class="contract-body">
-            <p><strong>ขอบเขตของงานบริการ</strong></p>
+            <div class="clause-title" style="margin-top: 0;">ขอบเขตของงานบริการ</div>
             <ol>
               <li>ผู้รับจ้างจะต้องเข้ารับพัสดุและสินค้า ณ จุดที่กำหนด และนำส่งพัสดุและสินค้าดังกล่าว ณ ที่อยู่ปลายทางในสภาพที่ดี</li>
               <li>ในกรณีที่เป็นพัสดุหรือสินค้าที่จะต้องเก็บเงินค่าพัสดุหรือสินค้าจากผู้รับปลายทาง ผู้รับจ้างจะต้องดำเนินการเก็บเงินดังกล่าวในนามของผู้ว่าจ้าง ตามวิธีการที่ผู้ว่าจ้างกำหนด</li>
@@ -585,8 +591,8 @@
           </div>
 
           <div class="contract-body">
-            <p><strong>หนังสือให้ความยินยอม สำหรับการเก็บรวบรวม ใช้ และเปิดเผยข้อมูลส่วนบุคคล</strong></p>
-            <p>โดยการลงลายมือชื่อในเอกสารฉบับนี้ ข้าพเจ้า <span class="fill-data" data-bind="fullName"></span> ในฐานะเจ้าของข้อมูลส่วนบุคคล ตกลงยินยอมให้ <strong>บริษัท เหอไท่ เน็ตเวิร์ค เทคโนโลยี จำกัด</strong> และบริษัทในเครือ (“บริษัทฯ”) ดำเนินการดังต่อไปนี้</p>
+            <div class="clause-title" style="margin-top: 0;">หนังสือให้ความยินยอม สำหรับการเก็บรวบรวม ใช้ และเปิดเผยข้อมูลส่วนบุคคล</div>
+            <p>โดยการลงลายมือชื่อในเอกสารฉบับนี้ ข้าพเจ้า <span class="fill-data" data-bind="fullName"></span> ในฐานะเจ้าของข้อมูลส่วนบุคคล ตกลงยินยอมให้ บริษัท เหอไท่ เน็ตเวิร์ค เทคโนโลยี จำกัด และบริษัทในเครือ (“บริษัทฯ”) ดำเนินการดังต่อไปนี้</p>
             <ul>
               <li>เก็บรวบรวม ใช้ และเปิดเผยข้อมูลส่วนบุคคลที่มีความอ่อนไหวดังต่อไปนี้ของข้าพเจ้า เพื่อวัตถุประสงค์ต่างๆ ที่เกี่ยวข้องกับการสัญญาจ้างทำของและการให้บริการภายใต้สัญญาอื่นๆ ที่เกี่ยวข้อง ตลอดจนเพื่อดำเนินการอื่นๆ ที่จำเป็นหรือเกี่ยวเนื่องกับวัตถุประสงค์ดังกล่าว
                 <ul>
@@ -651,7 +657,7 @@
 </div>
 
 <script>
-  const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxMz85tKqO7Buc13X5dCqp1iANgZyevUyuzM9AX2BUlb21qZgz6GrmXstvymwaG36ik/exec';
+  const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz03nh-imfrS0-lDU3ubR6MJx_zAD0FCC-pDYTM5xuPgUrc0U5QFi6z8sgimVO6Gus1/exec';
   const ADMIN_PIN = 'Admin1234';
 
   const canvas = document.getElementById('signature-pad');
@@ -831,6 +837,9 @@
 
   async function submitAndExportPDF() {
     switchDocView('all');
+    if (document.fonts && document.fonts.ready) {
+      await document.fonts.ready;
+    }
 
     const loader = document.getElementById('loading-overlay');
     const btn = document.getElementById('pdf-btn');
@@ -839,11 +848,12 @@
 
     const name = document.getElementById('fullName').value.trim();
     const element = document.getElementById('pdf-content');
+
     const opt = {
       margin: [10, 10, 10, 10],
       filename: `ใบสมัครและสัญญาจ้างขนส่ง_${name}.pdf`,
-      image: { type: 'jpeg', quality: 0.95 },
-      html2canvas: { scale: 2, useCORS: true, scrollY: 0 },
+      image: { type: 'jpeg', quality: 0.78 },
+      html2canvas: { scale: 1.5, useCORS: true, scrollY: 0, letterRendering: true },
       jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
       pagebreak: { mode: ['css', 'legacy'], before: '.page-break', avoid: '.avoid-break' }
     };
@@ -870,17 +880,21 @@
         pdfBase64: pdfBase64
       };
 
-      await fetch(SCRIPT_URL, {
+      const response = await fetch(SCRIPT_URL, {
         method: 'POST',
-        mode: 'no-cors',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
         body: JSON.stringify(payload)
       });
 
+      const result = await response.json();
+      if (result.status !== 'success') {
+        throw new Error(result.message || 'บันทึกข้อมูลไม่สำเร็จ');
+      }
+
       await html2pdf().set(opt).from(element).save();
-      alert('บันทึกข้อมูลเข้าระบบและดาวน์โหลดไฟล์ PDF เรียบร้อยแล้ว!');
+      alert('บันทึกข้อมูลลง Google Sheets และดาวน์โหลดไฟล์ PDF เรียบร้อยแล้ว!');
     } catch (err) {
-      alert('เกิดข้อผิดพลาด: ' + err.message);
+      alert('ซิงค์ข้อมูลไม่สำเร็จ: ' + err.message);
     } finally {
       loader.style.display = 'none';
       btn.disabled = false;
