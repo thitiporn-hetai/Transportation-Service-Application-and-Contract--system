@@ -66,7 +66,7 @@
     .tab-btn { flex: 1; min-width: 140px; padding: 9px; border: none; border-radius: 6px; font-size: 13.5px; font-weight: 600; cursor: pointer; background: transparent; color: #475569; }
     .tab-btn.active { background: #2563eb; color: #fff; }
 
-    /* ================= สไตล์สำหรับเอกสาร PDF (แก้ฟอนต์ทับ + จัดหน้า A4) ================= */
+    /* ================= สไตล์สำหรับเอกสารและพิมพ์ PDF ================= */
     #preview-section { display: none; margin-top: 10px; }
     .pdf-scroll-wrap { overflow-x: auto; background: #e5e7eb; padding: 12px; border-radius: 8px; }
     #pdf-content {
@@ -76,12 +76,10 @@
       color: #000;
       font-family: 'Sarabun', sans-serif;
       font-weight: 400;
-      letter-spacing: 0.1px;
-      text-rendering: geometricPrecision;
     }
     .pdf-page {
       padding: 6mm 8mm;
-      line-height: 1.78;
+      line-height: 1.75;
       font-size: 13px;
       background: #fff;
       position: relative;
@@ -115,9 +113,9 @@
     .doc-card img { max-width: 100%; max-height: 105px; object-fit: contain; margin: 4px auto 0; display: block; }
 
     /* เนื้อหาสัญญาและเอกสารแนบท้าย */
-    .contract-body p { margin: 0 0 9px 0; text-align: left; line-height: 1.78; }
-    .contract-body ul, .contract-body ol { margin: 4px 0 10px 22px; padding: 0; line-height: 1.78; }
-    .contract-body li { margin-bottom: 5px; line-height: 1.78; }
+    .contract-body p { margin: 0 0 9px 0; text-align: left; line-height: 1.75; }
+    .contract-body ul, .contract-body ol { margin: 4px 0 10px 22px; padding: 0; line-height: 1.75; }
+    .contract-body li { margin-bottom: 5px; line-height: 1.75; }
     .clause-title { font-weight: 700; font-size: 13.5px; line-height: 1.65; margin-top: 12px; margin-bottom: 5px; color: #000; }
     .rate-box {
       background: #f8fafc;
@@ -154,6 +152,18 @@
 
     #loading-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.65); color: #fff; justify-content: center; align-items: center; flex-direction: column; z-index: 9999; font-size: 18px; }
 
+    @media print {
+      @page { size: A4 portrait; margin: 10mm; }
+      body { background: #fff !important; padding: 0 !important; margin: 0 !important; }
+      .top-bar, .view-tabs, #form-section, #admin-section, #loading-overlay, #pdf-btn, .btn-secondary { display: none !important; }
+      .container { max-width: 100% !important; width: 100% !important; margin: 0 !important; padding: 0 !important; box-shadow: none !important; border-radius: 0 !important; }
+      #preview-section { display: block !important; margin: 0 !important; }
+      .pdf-scroll-wrap { overflow: visible !important; background: #fff !important; padding: 0 !important; }
+      #pdf-content { width: 100% !important; margin: 0 !important; }
+      .pdf-page { display: block !important; padding: 0 !important; }
+      .page-break { page-break-before: always !important; break-before: page !important; }
+    }
+
     @media (max-width: 600px) {
       .row, .admin-filters { flex-direction: column; gap: 6px; }
     }
@@ -162,7 +172,7 @@
 <body>
 
 <div id="loading-overlay">
-  <div id="loading-text">กำลังสร้างไฟล์ PDF และบันทึกข้อมูลเข้าระบบ...</div>
+  <div id="loading-text">กำลังบันทึกข้อมูลเข้าระบบและเตรียมไฟล์ PDF...</div>
   <div style="font-size: 14px; margin-top: 8px;">กรุณารอสักครู่ครับ</div>
 </div>
 
@@ -623,7 +633,7 @@
       </div>
     </div>
 
-    <button type="button" id="pdf-btn" class="btn btn-success" onclick="submitAndExportPDF()">บันทึกข้อมูลเข้าระบบ และดาวน์โหลด PDF (ใบสมัคร + สัญญาจ้าง)</button>
+    <button type="button" id="pdf-btn" class="btn btn-success" onclick="submitAndExportPDF()">บันทึกข้อมูลเข้าระบบ และเซฟเป็น PDF (ใบสมัคร + สัญญาจ้าง)</button>
     <button type="button" class="btn btn-secondary" style="width: 100%; margin-top: 8px;" onclick="backToForm()">กลับไปแก้ไขข้อมูล</button>
   </div>
 
@@ -849,11 +859,12 @@
     const name = document.getElementById('fullName').value.trim();
     const element = document.getElementById('pdf-content');
 
+    // สร้าง base64 สำหรับอัปโหลดเก็บสำเนาลง Google Drive ผ่าน Apps Script
     const opt = {
       margin: [10, 10, 10, 10],
       filename: `ใบสมัครและสัญญาจ้างขนส่ง_${name}.pdf`,
-      image: { type: 'jpeg', quality: 0.78 },
-      html2canvas: { scale: 1.5, useCORS: true, scrollY: 0, letterRendering: true },
+      image: { type: 'jpeg', quality: 0.75 },
+      html2canvas: { scale: 1.25, useCORS: true, scrollY: 0 },
       jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
       pagebreak: { mode: ['css', 'legacy'], before: '.page-break', avoid: '.avoid-break' }
     };
@@ -891,8 +902,9 @@
         throw new Error(result.message || 'บันทึกข้อมูลไม่สำเร็จ');
       }
 
-      await html2pdf().set(opt).from(element).save();
-      alert('บันทึกข้อมูลลง Google Sheets และดาวน์โหลดไฟล์ PDF เรียบร้อยแล้ว!');
+      loader.style.display = 'none';
+      alert('บันทึกข้อมูลลงระบบเรียบร้อยแล้ว ระบบจะเปิดหน้าต่างสำหรับเซฟ/พิมพ์ไฟล์ PDF (ตัวอักษรคมชัดไม่ทับกัน)');
+      window.print();
     } catch (err) {
       alert('ซิงค์ข้อมูลไม่สำเร็จ: ' + err.message);
     } finally {
