@@ -37,6 +37,7 @@
       margin-bottom: 12px;
       white-space: pre-line;
     }
+    .live-fill { font-weight: 700; color: #1d4ed8; text-decoration: underline; padding: 0 3px; }
 
     .consent-group { background: #eff6ff; border: 1px solid #bfdbfe; padding: 12px 14px; border-radius: 8px; margin-bottom: 14px; }
     .checkbox-label { display: flex; align-items: flex-start; gap: 10px; font-weight: 600; font-size: 14px; color: #1e3a8a; cursor: pointer; margin-bottom: 8px; }
@@ -135,25 +136,25 @@
     <div class="row">
       <div class="form-group">
         <label>ชื่อ-นามสกุล *</label>
-        <input type="text" id="fullName" placeholder="เช่น นายสมชาย ใจดี" oninput="syncAccountName()">
+        <input type="text" id="fullName" placeholder="เช่น นายสมชาย ใจดี" oninput="syncAccountName(); updateLivePreview();">
       </div>
       <div class="form-group">
         <label>อายุ (ปี) *</label>
-        <input type="number" id="age" min="18" max="75" placeholder="เช่น 28">
+        <input type="number" id="age" min="18" max="75" placeholder="เช่น 28" oninput="updateLivePreview()">
       </div>
       <div class="form-group">
         <label>เลขบัตรประจำตัวประชาชน *</label>
-        <input type="text" id="idCard" maxlength="13" placeholder="กรอกเลข 13 หลัก">
+        <input type="text" id="idCard" maxlength="13" placeholder="กรอกเลข 13 หลัก" oninput="updateLivePreview()">
       </div>
     </div>
     <div class="row">
       <div class="form-group">
         <label>เบอร์โทรศัพท์ *</label>
-        <input type="tel" id="phone" placeholder="08X-XXX-XXXX">
+        <input type="tel" id="phone" placeholder="08X-XXX-XXXX" oninput="updateLivePreview()">
       </div>
       <div class="form-group">
         <label>ที่อยู่ปัจจุบัน *</label>
-        <input type="text" id="address" placeholder="บ้านเลขที่ ถนน ตำบล/แขวง อำเภอ/เขต จังหวัด">
+        <input type="text" id="address" placeholder="บ้านเลขที่ ถนน ตำบล/แขวง อำเภอ/เขต จังหวัด" oninput="updateLivePreview()">
       </div>
     </div>
 
@@ -177,15 +178,16 @@
     <div class="row">
       <div class="form-group">
         <label>ประเภทรถ / ตำแหน่ง *</label>
-        <select id="position" onchange="updateRate()">
+        <select id="position" onchange="updateRate(); updateLivePreview();">
           <option value="รถจักรยานยนต์ (Biker)">รถจักรยานยนต์ (Biker)</option>
+          <option value="รถยนต์ (4W Driver)">รถยนต์ (4W Driver)</option>
           <option value="รถยนต์ (4W Driver) - กรุงเทพและสมุทรปราการ">รถยนต์ (4W Driver) - กรุงเทพและสมุทรปราการ</option>
           <option value="รถยนต์ (4W Driver) - ปทุมธานี, นนทบุรี, สมุทรสาคร">รถยนต์ (4W Driver) - ปทุมธานี, นนทบุรี, สมุทรสาคร</option>
         </select>
       </div>
       <div class="form-group">
         <label>อัตราค่าตอบแทน *</label>
-        <input type="text" id="rate" value="8 บาทต่อชิ้น">
+        <input type="text" id="rate" value="8 บาทต่อชิ้น" oninput="updateLivePreview()">
       </div>
     </div>
     <div class="row">
@@ -199,7 +201,7 @@
       </div>
       <div class="form-group">
         <label>วันเริ่มมีผลบังคับใช้ *</label>
-        <input type="text" id="effectiveDate" placeholder="เช่น 1 ธันวาคม 2569">
+        <input type="text" id="effectiveDate" placeholder="เช่น 1 ธันวาคม 2569" oninput="updateLivePreview()">
       </div>
     </div>
 
@@ -235,15 +237,17 @@
       </div>
     </div>
 
-    <!-- ส่วนอ่านสัญญาและติ๊กรับทราบก่อนเซ็นชื่อ -->
+    <!-- ส่วนอ่านสัญญาและติ๊กรับทราบก่อนเซ็นชื่อ (อัปเดตชื่อและข้อมูลที่กรอกแบบเรียลไทม์) -->
     <div class="section-title">6. อ่านและรับทราบข้อตกลงสัญญาจ้างขนส่งและหนังสือยินยอม (PDPA)</div>
     <div class="contract-review-box"><strong>สัญญาว่าจ้างขนส่งสินค้าและเป็นตัวแทนเรียกเก็บและดูแลรักษาเงินแทนผู้ว่าจ้าง</strong>
 
 ทำที่ บริษัท เหอไท่ เน็ตเวิร์ค เทคโนโลยี จํากัด
-สัญญาฉบับนี้ทำขึ้นระหว่าง: บริษัท เหอไท่ เน็ตเวิร์ค เทคโนโลยี จํากัด สำนักงานตั้งอยู่เลขที่ 1152 ถนนพระรามที่4 แขวงคลองเตย เขตคลองเตย กรุงเทพมหานคร ซึ่งต่อไปในสัญญานี้จะเรียกว่า "ผู้ว่าจ้าง" ฝ่ายหนึ่ง กับผู้สมัครซึ่งต่อไปในสัญญานี้จะเรียกว่า "ผู้รับจ้าง" อีกฝ่ายหนึ่ง ทั้งสองฝ่ายตกลงทำสัญญากันโดยมีข้อความและเงื่อนไขดังต่อไปนี้:
+วันที่ <span class="live-fill" data-live="day"></span> เดือน <span class="live-fill" data-live="month"></span> พ.ศ. <span class="live-fill" data-live="year"></span>
+สัญญาฉบับนี้ทำขึ้นระหว่าง: <strong>บริษัท เหอไท่ เน็ตเวิร์ค เทคโนโลยี จํากัด</strong> สำนักงานตั้งอยู่เลขที่ 1152 ถนนพระรามที่4 แขวงคลองเตย เขตคลองเตย กรุงเทพมหานคร ซึ่งต่อไปในสัญญานี้จะเรียกว่า "ผู้ว่าจ้าง" ฝ่ายหนึ่ง กับ
+ชื่อ <span class="live-fill" data-live="fullName">.........................</span> อายุ <span class="live-fill" data-live="age">........</span> ปี อยู่บ้านเลขที่ <span class="live-fill" data-live="address">..........................................................................................</span> เลขบัตรประจำตัวประชาชน <span class="live-fill" data-live="idCard">.......................................</span> ซึ่งต่อไปในสัญญานี้จะเรียกว่า "ผู้รับจ้าง" อีกฝ่ายหนึ่ง ทั้งสองฝ่ายตกลงทำสัญญากันโดยมีข้อความและเงื่อนไขดังต่อไปนี้:
 
 <strong>ข้อ 1. วัตถุประสงค์และลักษณะงาน</strong>
-1.1 ผู้ว่าจ้างตกลงจ้าง และผู้รับจ้างตกลงรับจ้างขนส่งและกระจายพัสดุภัณฑ์ไปยังบ้านเรือนหรือสถานที่ตามที่ผู้ว่าจ้างกำหนด โดยใช้ยานพาหนะของผู้รับจ้างเอง คือ รถยนต์/รถจักรยานยนต์
+1.1 ผู้ว่าจ้างตกลงจ้าง และผู้รับจ้างตกลงรับจ้างขนส่งและกระจายพัสดุภัณฑ์ไปยังบ้านเรือนหรือสถานที่ตามที่ผู้ว่าจ้างกำหนด โดยใช้ยานพาหนะของผู้รับจ้างเอง คือ <span class="live-fill" data-live="position">รถจักรยานยนต์ (Biker)</span>
 1.1.1 เอกสารสำคัญรถขนส่งที่ต้องส่งมอบ ได้แก่:
 - สำเนาใบอนุญาตประกอบกิจการขนส่ง ของผู้รับจ้าง ซึ่งได้รับอนุญาตถูกต้องตามกฎหมาย
 - สำเนารายการคู่มือจดทะเบียนรถขนส่ง และ ใบตรวจสภาพรถขนส่ง ที่ได้รับการตรวจสภาพอย่างถูกต้องตามกฎหมายและเป็นไปตามมาตรฐานของงานรับจ้างขนส่งแต่ละประเภท
@@ -254,10 +258,10 @@
 1.2 สัญญานี้มีลักษณะเป็น งานพาร์ทไทม์ระยะสั้น (ชั่วคราว) ไม่มีข้อผูกมัดในฐานะนายจ้างกับลูกจ้าง ตามกฎหมายแรงงาน
 
 <strong>ข้อ 2. ระยะเวลาอันมีผลบังคับใช้</strong>
-สัญญาฉบับนี้มีผลบังคับใช้ตั้งแต่วันที่ระบุเริ่มปฏิบัติงานเป็นต้นไป และให้มีผลบังคับใช้ตลอดระยะเวลาที่ผู้รับจ้างยังคงมีสถานะเป็นผู้รับจ้างของบริษัท จนถึงวันที่ผู้รับจ้างพ้นสภาพการเป็นผู้รับจ้างของบริษัท
+สัญญาฉบับนี้มีผลบังคับใช้ตั้งแต่วันที่ <span class="live-fill" data-live="effectiveDate">………………………………………</span> เป็นต้นไป และให้มีผลบังคับใช้ตลอดระยะเวลาที่ผู้รับจ้างยังคงมีสถานะเป็นผู้รับจ้างของบริษัท จนถึงวันที่ผู้รับจ้างพ้นสภาพการเป็นผู้รับจ้างของบริษัท
 
 <strong>ข้อ 3. อัตราค่าจ้างและการจ่ายเงิน</strong>
-3.1 ผู้ว่าจ้างตกลงจ่ายค่าตอบแทนให้แก่ผู้รับจ้างในอัตรา :
+3.1 ผู้ว่าจ้างตกลงจ่ายค่าตอบแทนให้แก่ผู้รับจ้างในอัตรา : (อัตราที่เลือก: <span class="live-fill" data-live="rate">8 บาทต่อชิ้น</span>)
 1. มอเตอร์ไซค์ (Biker) : 8 บาทต่อชิ้น
 2. รถยนต์ (4W Driver) : 13 บาทต่อชิ้น (กรุงเทพและสมุทรปราการ)
        12 บาทต่อชิ้น (ปทุมธานี , นนทบุรี , สมุทรสาคร)
@@ -301,7 +305,7 @@
 
 <strong>เอกสารแนบท้าย 2 : แบบหนังสือให้ความยินยอมเกี่ยวกับข้อมูลส่วนบุคคล</strong>
 หนังสือให้ความยินยอมสำหรับการเก็บรวบรวม ใช้ และเปิดเผยข้อมูลส่วนบุคคล
-โดยการลงลายมือชื่อในเอกสารฉบับนี้ ข้าพเจ้าในฐานะเจ้าของข้อมูลส่วนบุคคล ตกลงยินยอมให้ บริษัท เหอไท่ เน็ตเวิร์ค เทคโนโลยี จํากัด และบริษัทในเครือ (“บริษัทฯ”) ดำเนินการดังต่อไปนี้
+โดยการลงลายมือชื่อในเอกสารฉบับนี้ ข้าพเจ้า <span class="live-fill" data-live="fullName">……………………………………..</span> ในฐานะเจ้าของข้อมูลส่วนบุคคล ตกลงยินยอมให้ บริษัท เหอไท่ เน็ตเวิร์ค เทคโนโลยี จํากัด และบริษัทในเครือ (“บริษัทฯ”) ดำเนินการดังต่อไปนี้
 - เก็บรวบรวม ใช้ และเปิดเผยข้อมูลส่วนบุคคลที่มีความอ่อนไหวดังต่อไปนี้ของข้าพเจ้า เพื่อวัตถุประสงค์ต่างๆ ที่เกี่ยวข้องกับการสัญญาจ้างทำของและการให้บริการภายใต้สัญญาอื่นๆ ที่เกี่ยวข้อง ตลอดจนเพื่อดำเนินการอื่นๆ ที่จำเป็นหรือเกี่ยวเนื่องกับวัตถุประสงค์ดังกล่าว
 - ข้อมูลศาสนา และ/หรือหมู่โลหิต ที่ปรากฏอยู่บนบัตรประจำตัวประชาชน
 - ข้อมูลสุขภาพ
@@ -436,7 +440,7 @@
           <p>ชื่อ <span class="fill-data" data-bind="fullName"></span> อายุ <span class="fill-data" data-bind="age"></span> ปี อยู่บ้านเลขที่ <span class="fill-data" data-bind="address"></span> โทรศัพท์ <span class="fill-data" data-bind="phone"></span> เลขบัตรประจำตัวประชาชน <span class="fill-data" data-bind="idCard"></span> (บุคคลติดต่อฉุกเฉิน: <span class="fill-data" data-bind="emerName"></span> [<span class="fill-data" data-bind="emerRelation"></span>] โทร. <span class="fill-data" data-bind="emerPhone"></span>) ซึ่งต่อไปในสัญญานี้จะเรียกว่า "ผู้รับจ้าง" อีกฝ่ายหนึ่ง ทั้งสองฝ่ายตกลงทำสัญญากันโดยมีข้อความและเงื่อนไขดังต่อไปนี้:</p>
 
           <p><strong>ข้อ 1. วัตถุประสงค์และลักษณะงาน</strong><br>
-          1.1 ผู้ว่าจ้างตกลงจ้าง และผู้รับจ้างตกลงรับจ้างขนส่งและกระจายพัสดุภัณฑ์ไปยังบ้านเรือนหรือสถานที่ตามที่ผู้ว่าจ้างกำหนด โดยใช้ยานพาหนะของผู้รับจ้างเอง คือ รถยนต์/รถจักรยานยนต์ (<span class="fill-data" data-bind="position"></span> ทะเบียน <span class="fill-data" data-bind="plateNumber"></span> พื้นที่/Hub <span class="fill-data" data-bind="hubLocation"></span>)</p>
+          1.1 ผู้ว่าจ้างตกลงจ้าง และผู้รับจ้างตกลงรับจ้างขนส่งและกระจายพัสดุภัณฑ์ไปยังบ้านเรือนหรือสถานที่ตามที่ผู้ว่าจ้างกำหนด โดยใช้ยานพาหนะของผู้รับจ้างเอง คือ <span class="fill-data" data-bind="position"></span> ทะเบียน <span class="fill-data" data-bind="plateNumber"></span> พื้นที่/Hub <span class="fill-data" data-bind="hubLocation"></span></p>
 
           <p><strong>1.1.1 เอกสารสำคัญรถขนส่งที่ต้องส่งมอบ ได้แก่:</strong></p>
           <ul>
@@ -608,7 +612,34 @@
   resizeCanvas();
 
   const now = new Date();
-  document.getElementById('effectiveDate').value = now.toLocaleDateString('th-TH', { year: 'numeric', month: 'long', day: 'numeric' });
+  const thaiMonthsInit = [
+    'มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน', 'พฤษภาคม', 'มิถุนายน',
+    'กรกฎาคม', 'สิงหาคม', 'กันยายน', 'ตุลาคม', 'พฤศจิกายน', 'ธันวาคม'
+  ];
+  document.getElementById('effectiveDate').value = `${now.getDate()} ${thaiMonthsInit[now.getMonth()]} ${now.getFullYear() + 543}`;
+
+  // อัปเดตข้อมูลในกล่องอ่านสัญญาข้อ 6 แบบเรียลไทม์ขณะพิมพ์
+  function updateLivePreview() {
+    const d = new Date();
+    const liveData = {
+      day: String(d.getDate()),
+      month: thaiMonthsInit[d.getMonth()],
+      year: String(d.getFullYear() + 543),
+      fullName: document.getElementById('fullName').value.trim() || '.........................',
+      age: document.getElementById('age').value.trim() || '........',
+      address: document.getElementById('address').value.trim() || '..........................................................................................',
+      idCard: document.getElementById('idCard').value.trim() || '.......................................',
+      position: document.getElementById('position').value,
+      rate: document.getElementById('rate').value.trim() || '8 บาทต่อชิ้น',
+      effectiveDate: document.getElementById('effectiveDate').value.trim() || '………………………………………'
+    };
+
+    document.querySelectorAll('[data-live]').forEach(el => {
+      const key = el.getAttribute('data-live');
+      if (liveData[key] !== undefined) el.innerText = liveData[key];
+    });
+  }
+  updateLivePreview();
 
   // ตรวจสอบการติ๊กรับทราบสัญญาและ PDPA ก่อนปลดล็อกช่องเซ็นชื่อ
   function checkConsent() {
@@ -644,6 +675,7 @@
     if (pos.includes('Biker')) rateEl.value = '8 บาทต่อชิ้น';
     else if (pos.includes('กรุงเทพและสมุทรปราการ')) rateEl.value = '13 บาทต่อชิ้น';
     else if (pos.includes('ปทุมธานี')) rateEl.value = '12 บาทต่อชิ้น';
+    else if (pos.includes('รถยนต์ (4W Driver)')) rateEl.value = '13 บาทต่อชิ้น';
   }
 
   function previewImage(input, imgId) {
@@ -681,12 +713,8 @@
     }
 
     const d = new Date();
-    const thaiMonths = [
-      'มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน', 'พฤษภาคม', 'มิถุนายน',
-      'กรกฎาคม', 'สิงหาคม', 'กันยายน', 'ตุลาคม', 'พฤศจิกายน', 'ธันวาคม'
-    ];
     const dayStr = String(d.getDate());
-    const monthStr = thaiMonths[d.getMonth()];
+    const monthStr = thaiMonthsInit[d.getMonth()];
     const yearStr = String(d.getFullYear() + 543);
 
     const values = {
