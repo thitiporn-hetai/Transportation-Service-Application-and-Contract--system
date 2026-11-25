@@ -667,7 +667,7 @@
 </div>
 
 <script>
-  const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz03nh-imfrS0-lDU3ubR6MJx_zAD0FCC-pDYTM5xuPgUrc0U5QFi6z8sgimVO6Gus1/exec';
+  const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzDJ66qmByiNV4egmDSQg1fU37cX0MizoWetKzHCzp55xm6Th7l1BuXpE07zoEm1MgM/exec';
   const ADMIN_PIN = 'Admin1234';
 
   const canvas = document.getElementById('signature-pad');
@@ -859,7 +859,6 @@
     const name = document.getElementById('fullName').value.trim();
     const element = document.getElementById('pdf-content');
 
-    // สร้าง base64 สำหรับอัปโหลดเก็บสำเนาลง Google Drive ผ่าน Apps Script
     const opt = {
       margin: [10, 10, 10, 10],
       filename: `ใบสมัครและสัญญาจ้างขนส่ง_${name}.pdf`,
