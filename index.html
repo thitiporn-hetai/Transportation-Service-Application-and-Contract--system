@@ -1,120 +1,1167 @@
-function savePdfToDrive(pdfBase64, fullName) {
-  try {
-    const base64Data = pdfBase64.includes(',') ? pdfBase64.split(',')[1] : pdfBase64;
-    const blob = Utilities.newBlob(
-      Utilities.base64Decode(base64Data),
-      'application/pdf',
-      `ใบสมัครและสัญญาจ้างขนส่ง_${fullName || 'ผู้สมัคร'}.pdf`
-    );
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ใบสมัครงานและสัญญาจ้างขนส่ง - บริษัท เหอไท่ เน็ตเวิร์ค เทคโนโลยี จำกัด</title>
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.1.7/dist/signature_pad.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  <style>
+    * { box-sizing: border-box; font-family: 'Sarabun', sans-serif; }
+    body { background: #f3f4f6; margin: 0; padding: 15px; color: #1f2937; }
+    .top-bar { max-width: 920px; margin: 0 auto 10px; display: flex; justify-content: flex-end; gap: 8px; }
+    .btn-admin-toggle { background: #1e293b; color: #fff; border: none; padding: 7px 14px; border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer; }
+    .container { max-width: 920px; margin: 0 auto; background: #fff; padding: 25px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
+    h2 { text-align: center; color: #111827; margin-top: 0; border-bottom: 2px solid #2563eb; padding-bottom: 10px; }
+    .section-title { font-weight: 700; color: #2563eb; margin: 20px 0 10px; font-size: 16px; border-left: 4px solid #2563eb; padding-left: 8px; }
+    .form-group { margin-bottom: 14px; }
+    label { display: block; font-weight: 600; margin-bottom: 5px; font-size: 14px; }
+    .label-inline { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 5px; }
+    .label-inline label { margin-bottom: 0; }
+    .btn-mini-copy { background: #e0e7ff; color: #1d4ed8; border: none; border-radius: 4px; padding: 2px 8px; font-size: 12px; font-weight: 600; cursor: pointer; }
+    .btn-mini-copy:hover { background: #c7d2fe; }
+    input[type="text"], input[type="number"], input[type="tel"], input[type="file"], select, textarea {
+      width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 15px;
+    }
+    .row { display: flex; gap: 15px; flex-wrap: wrap; }
+    .row .form-group { flex: 1; min-width: 200px; }
 
-    const folderName = 'สัญญาจ้างขนส่ง_Hetai';
-    const folders = DriveApp.getFoldersByName(folderName);
-    const folder = folders.hasNext() ? folders.next() : DriveApp.createFolder(folderName);
+    .contract-review-box {
+      max-height: 360px; overflow-y: auto; border: 1px solid #cbd5e1; background: #f8fafc;
+      padding: 16px 20px; border-radius: 8px; font-size: 14px; line-height: 1.75;
+      color: #1e293b; margin-bottom: 12px; white-space: pre-line;
+    }
+    .live-fill { font-weight: 700; color: #1d4ed8; text-decoration: underline; padding: 0 3px; }
 
-    const file = folder.createFile(blob);
-    file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
-    return file.getUrl();
-  } catch (err) {
-    return 'อัปโหลด PDF ไม่สำเร็จ: ' + err.message;
-  }
-}
+    .consent-group { background: #eff6ff; border: 1px solid #bfdbfe; padding: 12px 14px; border-radius: 8px; margin-bottom: 14px; }
+    .checkbox-label { display: flex; align-items: flex-start; gap: 10px; font-weight: 600; font-size: 14px; color: #1e3a8a; cursor: pointer; margin-bottom: 8px; }
+    .checkbox-label:last-child { margin-bottom: 0; }
+    .checkbox-label input[type="checkbox"] { width: 18px; height: 18px; margin-top: 2px; flex-shrink: 0; cursor: pointer; }
 
-function doPost(e) {
-  try {
-    const payload = JSON.parse(e.postData.contents);
-    const sheet = getOrCreateDataSheet();
-    const pdfUrl = payload.pdfBase64
-      ? savePdfToDrive(payload.pdfBase64, payload.fullName)
-      : '';
-
-    const timestamp = Utilities.formatDate(new Date(), 'Asia/Bangkok', 'yyyy-MM-dd HH:mm:ss');
-    sheet.appendRow([
-      timestamp,
-      payload.fullName || '',
-      payload.age || '',
-      payload.idCard || '',
-      payload.phone || '',
-      payload.address || '',
-      payload.emerName || '',
-      payload.emerRelation || '',
-      payload.emerPhone || '',
-      payload.position || '',
-      payload.rate || '',
-      payload.plateNumber || '',
-      payload.hubLocation || '',
-      payload.bankName || '',
-      payload.bankAccountName || '',
-      payload.bankAccount || '',
-      pdfUrl,
-      payload.employeeCode || '',
-      payload.registeredAddress || ''
-    ]);
-
-    return ContentService
-      .createTextOutput(JSON.stringify({ status: 'success', pdfUrl: pdfUrl }))
-      .setMimeType(ContentService.MimeType.JSON);
-  } catch (err) {
-    return ContentService
-      .createTextOutput(JSON.stringify({ status: 'error', message: err.message }))
-      .setMimeType(ContentService.MimeType.JSON);
-  }
-}
-
-function doGet(e) {
-  try {
-    const sheet = getOrCreateDataSheet();
-    const lastRow = sheet.getLastRow();
-    if (lastRow < 2) {
-      return ContentService
-        .createTextOutput(JSON.stringify({ status: 'success', data: [] }))
-        .setMimeType(ContentService.MimeType.JSON);
+    .sig-wrapper { position: relative; }
+    .sig-box { border: 2px dashed #9ca3af; border-radius: 8px; background: #fafafa; text-align: center; }
+    canvas { width: 100%; height: 150px; touch-action: none; }
+    .sig-lock-overlay {
+      position: absolute; inset: 0; background: rgba(241, 245, 249, 0.88);
+      border-radius: 8px; display: flex; justify-content: center; align-items: center;
+      text-align: center; padding: 15px; font-weight: 700; color: #475569; font-size: 14.5px;
     }
 
-    const rows = sheet.getRange(2, 1, lastRow - 1, 19).getValues();
-    const data = rows.map(r => ({
-      timestamp: r[0],
-      fullName: r[1],
-      age: r[2],
-      idCard: r[3],
-      phone: r[4],
-      address: r[5],
-      emerName: r[6],
-      emerRelation: r[7],
-      emerPhone: r[8],
-      position: r[9],
-      rate: r[10],
-      plateNumber: r[11],
-      hubLocation: r[12],
-      bankName: r[13],
-      bankAccountName: r[14],
-      bankAccount: r[15],
-      pdfUrl: r[16],
-      employeeCode: r[17] || '',
-      registeredAddress: r[18] || ''
-    })).reverse();
+    .btn { padding: 12px 20px; border: none; border-radius: 6px; font-size: 16px; font-weight: 600; cursor: pointer; width: 100%; margin-top: 10px; }
+    .btn-primary { background: #2563eb; color: #fff; }
+    .btn-primary:disabled { background: #9ca3af; cursor: not-allowed; }
+    .btn-secondary { background: #e5e7eb; color: #374151; width: auto; padding: 6px 14px; font-size: 13px; margin-top: 5px; }
+    .btn-success { background: #059669; color: #fff; }
+    .btn-success:disabled { background: #9ca3af; cursor: not-allowed; }
 
-    return ContentService
-      .createTextOutput(JSON.stringify({ status: 'success', data: data }))
-      .setMimeType(ContentService.MimeType.JSON);
-  } catch (err) {
-    return ContentService
-      .createTextOutput(JSON.stringify({ status: 'error', message: err.message }))
-      .setMimeType(ContentService.MimeType.JSON);
-  }
-}
+    .view-tabs { display: flex; gap: 8px; margin-bottom: 14px; background: #f1f5f9; padding: 6px; border-radius: 8px; flex-wrap: wrap; }
+    .tab-btn { flex: 1; min-width: 125px; padding: 8px 10px; border: none; border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer; background: transparent; color: #475569; }
+    .tab-btn.active { background: #2563eb; color: #fff; }
 
-function getOrCreateDataSheet() {
-  const ss = SpreadsheetApp.getActiveSpreadsheet();
-  const sheetName = 'Data';
-  let sheet = ss.getSheetByName(sheetName);
-  if (!sheet) {
-    sheet = ss.insertSheet(sheetName);
-    sheet.appendRow([
-      'วันที่สมัคร', 'ชื่อ-นามสกุล', 'อายุ', 'เลขบัตรประชาชน', 'เบอร์โทร', 'ที่อยู่',
-      'บุคคลติดต่อฉุกเฉิน', 'ความสัมพันธ์', 'เบอร์ฉุกเฉิน', 'ตำแหน่ง/รถ', 'เรทค่าตอบแทน',
-      'ทะเบียนรถ', 'Hub', 'ธนาคาร', 'ชื่อบัญชี', 'เลขที่บัญชี', 'ลิงค์ไฟล์PDF',
-      'รหัสพนักงาน', 'ที่อยู่ตามทะเบียนบ้าน'
-    ]);
+    /* ================= สไตล์สำหรับเอกสารและพิมพ์ PDF (ขนาด A4) ================= */
+    #preview-section { display: none; margin-top: 10px; }
+    .pdf-scroll-wrap { overflow-x: auto; background: #e5e7eb; padding: 12px; border-radius: 8px; }
+    #pdf-content {
+      width: 190mm;
+      margin: 0 auto;
+      background: #fff;
+      color: #000;
+      font-family: 'Sarabun', sans-serif;
+      font-weight: 400;
+    }
+    .pdf-page {
+      padding: 4mm 6mm;
+      line-height: 1.65;
+      font-size: 12.5px;
+      background: #fff;
+      position: relative;
+    }
+    .page-break {
+      page-break-before: always;
+      break-before: page;
+    }
+    .avoid-break {
+      page-break-inside: avoid;
+      break-inside: avoid;
+    }
+
+    .app-top-banner {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 12px;
+      border-bottom: 1.5px solid #111827;
+      padding-bottom: 8px;
+      margin-bottom: 10px;
+    }
+    .brand-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex: 1;
+    }
+    .company-logo {
+      width: 44px;
+      height: 44px;
+      object-fit: contain;
+      flex-shrink: 0;
+    }
+    .brand-title-group {
+      text-align: left;
+    }
+    .applicant-photo-box {
+      width: 26mm;
+      height: 32mm;
+      border: 1px solid #6b7280;
+      border-radius: 4px;
+      background: #f9fafb;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      overflow: hidden;
+      flex-shrink: 0;
+      padding: 2px;
+    }
+    .applicant-photo-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+    .applicant-photo-placeholder {
+      font-size: 10.5px;
+      color: #6b7280;
+      line-height: 1.35;
+    }
+
+    .doc-header {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 10px;
+      border-bottom: 1.5px solid #111827;
+      padding-bottom: 7px;
+      text-align: center;
+    }
+    .doc-title { font-size: 15.5px; font-weight: 700; margin: 0; line-height: 1.35; }
+    .doc-subtitle { font-size: 12px; color: #1f2937; margin-top: 3px; line-height: 1.5; }
+    .fill-data { font-weight: 700; text-decoration: underline; padding: 0 2px; color: #000; }
+
+    .app-table { width: 100%; border-collapse: collapse; margin-bottom: 10px; font-size: 12px; line-height: 1.5; }
+    .app-table th, .app-table td { border: 1px solid #6b7280; padding: 5.5px 8px; text-align: left; vertical-align: top; }
+    .app-table th { background: #f3f4f6; width: 20%; font-weight: 700; color: #111827; }
+    .app-table td { width: 30%; }
+
+    .attachment-box {
+      border: 1px solid #9ca3af; border-radius: 6px; padding: 12px; min-height: 185mm;
+      display: flex; flex-direction: column; align-items: center; justify-content: center; background: #fff;
+    }
+    .attachment-img { max-width: 100%; max-height: 170mm; width: auto; height: auto; object-fit: contain; display: block; }
+    .attachment-empty { color: #6b7280; font-size: 14px; text-align: center; padding: 40px 10px; }
+
+    .contract-body p { margin: 0 0 8px 0; text-align: left; line-height: 1.7; }
+    .contract-body ul, .contract-body ol { margin: 4px 0 9px 22px; padding: 0; line-height: 1.7; }
+    .contract-body li { margin-bottom: 4px; line-height: 1.7; }
+    .clause-title { font-weight: 700; font-size: 13px; line-height: 1.6; margin-top: 10px; margin-bottom: 4px; color: #000; }
+    .rate-box { background: #f8fafc; border: 1px solid #cbd5e1; padding: 7px 11px; border-radius: 4px; margin: 5px 0 9px 0; line-height: 1.65; }
+
+    .sign-area {
+      margin-top: 14px; display: flex; justify-content: space-between; align-items: flex-end;
+      gap: 20px; line-height: 1.55; page-break-inside: avoid; break-inside: avoid;
+    }
+    .sign-block { width: 48%; display: flex; flex-direction: column; align-items: center; text-align: center; }
+    .sign-slot { height: 48px; width: 100%; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; }
+    .sign-img { max-height: 44px; max-width: 175px; width: auto; object-fit: contain; display: block; margin: 0 auto 2px; }
+    .sign-line { display: block; width: 100%; text-align: center; letter-spacing: 0; white-space: nowrap; overflow: hidden; font-size: 12px; }
+    .sign-caption { margin: 3px 0 0; font-size: 12px; text-align: center; line-height: 1.5; }
+
+    #admin-section { display: none; }
+    .admin-filters { display: flex; gap: 10px; margin-bottom: 14px; }
+    .admin-table-wrap { overflow-x: auto; }
+    .admin-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    .admin-table th, .admin-table td { border: 1px solid #d1d5db; padding: 8px; text-align: left; white-space: nowrap; }
+    .admin-table th { background: #1e293b; color: #fff; }
+    .admin-table tr:nth-child(even) { background: #f8fafc; }
+    .btn-pdf-link { background: #059669; color: #fff; text-decoration: none; padding: 4px 10px; border-radius: 4px; font-size: 12px; font-weight: 600; display: inline-block; }
+
+    #loading-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.65); color: #fff; justify-content: center; align-items: center; flex-direction: column; z-index: 9999; font-size: 18px; }
+
+    @media print {
+      @page { size: A4 portrait; margin: 8mm; }
+      body { background: #fff !important; padding: 0 !important; margin: 0 !important; }
+      .top-bar, .view-tabs, #form-section, #admin-section, #loading-overlay, #pdf-btn, .btn-secondary { display: none !important; }
+      .container { max-width: 100% !important; width: 100% !important; margin: 0 !important; padding: 0 !important; box-shadow: none !important; border-radius: 0 !important; }
+      #preview-section { display: block !important; margin: 0 !important; }
+      .pdf-scroll-wrap { overflow: visible !important; background: #fff !important; padding: 0 !important; }
+      #pdf-content { width: 100% !important; margin: 0 !important; }
+      .pdf-page { display: block !important; padding: 0 !important; }
+      .page-break { page-break-before: always !important; break-before: page !important; }
+      .attachment-box { min-height: 240mm !important; }
+      .attachment-img { max-height: 225mm !important; }
+    }
+
+    @media (max-width: 600px) {
+      .row, .admin-filters { flex-direction: column; gap: 6px; }
+    }
+  </style>
+</head>
+<body>
+
+<div id="loading-overlay">
+  <div id="loading-text">กำลังบันทึกข้อมูลเข้าระบบและเตรียมไฟล์ PDF...</div>
+  <div style="font-size: 14px; margin-top: 8px;">กรุณารอสักครู่ครับ</div>
+</div>
+
+<div class="top-bar">
+  <button type="button" class="btn-admin-toggle" id="toggle-mode-btn" onclick="toggleAdminMode()">โหมดเจ้าหน้าที่ (ดูข้อมูลผู้สมัคร)</button>
+</div>
+
+<div class="container">
+  <div id="form-section">
+    <h2>แบบฟอร์มสมัครงานและจัดทำสัญญาจ้างขนส่ง</h2>
+
+    <div class="section-title">1. ข้อมูลส่วนตัวและรูปถ่ายผู้สมัคร</div>
+    <div class="row">
+      <div class="form-group">
+        <label>รหัสพนักงาน (ถ้ามี)</label>
+        <input type="text" id="employeeCode" placeholder="เช่น kxth7000000">
+      </div>
+      <div class="form-group">
+        <label>ชื่อ-นามสกุล *</label>
+        <input type="text" id="fullName" placeholder="เช่น นายสมชาย ใจดี" oninput="syncAccountName(); updateLivePreview();">
+      </div>
+      <div class="form-group">
+        <label>อายุ (ปี) *</label>
+        <input type="number" id="age" min="18" max="75" placeholder="เช่น 28" oninput="updateLivePreview()">
+      </div>
+    </div>
+    <div class="row">
+      <div class="form-group">
+        <label>เลขบัตรประจำตัวประชาชน *</label>
+        <input type="text" id="idCard" maxlength="13" placeholder="กรอกเลข 13 หลัก" oninput="updateLivePreview()">
+      </div>
+      <div class="form-group">
+        <label>เบอร์โทรศัพท์ *</label>
+        <input type="tel" id="phone" placeholder="08X-XXX-XXXX" oninput="updateLivePreview()">
+      </div>
+      <div class="form-group">
+        <label>รูปถ่ายผู้สมัคร (แสดงมุมขวาบนของใบสมัคร)</label>
+        <input type="file" accept="image/*" onchange="previewApplicantPhoto(this)">
+      </div>
+    </div>
+    <div class="row">
+      <div class="form-group">
+        <label>ที่อยู่ปัจจุบัน *</label>
+        <input type="text" id="address" placeholder="บ้านเลขที่ ถนน ตำบล/แขวง อำเภอ/เขต จังหวัด" oninput="updateLivePreview()">
+      </div>
+      <div class="form-group">
+        <div class="label-inline">
+          <label for="registeredAddress">ที่อยู่ตามทะเบียนบ้าน *</label>
+          <button type="button" class="btn-mini-copy" onclick="copyCurrentAddress()">คัดลอกที่อยู่ปัจจุบัน</button>
+        </div>
+        <input type="text" id="registeredAddress" placeholder="บ้านเลขที่ หมู่ ถนน ตำบล/แขวง อำเภอ/เขต จังหวัด">
+      </div>
+    </div>
+
+    <div class="section-title">2. บุคคลติดต่อฉุกเฉิน</div>
+    <div class="row">
+      <div class="form-group">
+        <label>ชื่อ-นามสกุล บุคคลติดต่อฉุกเฉิน *</label>
+        <input type="text" id="emerName" placeholder="เช่น นางสมหญิง ใจดี">
+      </div>
+      <div class="form-group">
+        <label>ความสัมพันธ์ *</label>
+        <input type="text" id="emerRelation" placeholder="เช่น มารดา, บิดา, คู่สมรส, พี่/น้อง">
+      </div>
+      <div class="form-group">
+        <label>เบอร์โทรศัพท์ฉุกเฉิน *</label>
+        <input type="tel" id="emerPhone" placeholder="08X-XXX-XXXX">
+      </div>
+    </div>
+
+    <div class="section-title">3. ข้อมูลการปฏิบัติงานและอัตราค่าตอบแทน</div>
+    <div class="row">
+      <div class="form-group">
+        <label>ประเภทรถ / ตำแหน่ง *</label>
+        <select id="position" onchange="updateRate(); updateLivePreview();">
+          <option value="รถจักรยานยนต์ (Biker)">รถจักรยานยนต์ (Biker)</option>
+          <option value="รถยนต์ (4W Driver)">รถยนต์ (4W Driver)</option>
+          <option value="รถยนต์ (4W Driver) - กรุงเทพและสมุทรปราการ">รถยนต์ (4W Driver) - กรุงเทพและสมุทรปราการ</option>
+          <option value="รถยนต์ (4W Driver) - ปทุมธานี, นนทบุรี, สมุทรสาคร">รถยนต์ (4W Driver) - ปทุมธานี, นนทบุรี, สมุทรสาคร</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>อัตราค่าตอบแทน *</label>
+        <input type="text" id="rate" value="8 บาทต่อชิ้น" oninput="updateLivePreview()">
+      </div>
+    </div>
+    <div class="row">
+      <div class="form-group">
+        <label>ทะเบียนรถ</label>
+        <input type="text" id="plateNumber" placeholder="เช่น 1กข 1234 กรุงเทพฯ">
+      </div>
+      <div class="form-group">
+        <label>พื้นที่ / ศูนย์กระจายสินค้า (Hub) *</label>
+        <input type="text" id="hubLocation" placeholder="ระบุพื้นที่หรือรหัส Hub">
+      </div>
+      <div class="form-group">
+        <label>วันเริ่มมีผลบังคับใช้ *</label>
+        <input type="text" id="effectiveDate" placeholder="เช่น 1 ธันวาคม 2569" oninput="updateLivePreview()">
+      </div>
+    </div>
+
+    <div class="section-title">4. ข้อมูลบัญชีรับเงิน</div>
+    <div class="row">
+      <div class="form-group">
+        <label>ธนาคาร *</label>
+        <input type="text" id="bankName" placeholder="เช่น ธนาคารกสิกรไทย">
+      </div>
+      <div class="form-group">
+        <label>ชื่อบัญชี *</label>
+        <input type="text" id="bankAccountName" placeholder="ระบุชื่อบัญชีธนาคาร">
+      </div>
+      <div class="form-group">
+        <label>เลขที่บัญชี *</label>
+        <input type="text" id="bankAccount" placeholder="กรอกเลขที่บัญชี">
+      </div>
+    </div>
+
+    <div class="section-title">5. แนบเอกสารประกอบการสมัคร (แสดงหน้าละ 1 แผ่นในเอกสาร)</div>
+    <div class="row">
+      <div class="form-group">
+        <label>บัตรประชาชน</label>
+        <input type="file" accept="image/*" onchange="previewImage(this, 'img-id', 'empty-id')">
+      </div>
+      <div class="form-group">
+        <label>ใบขับขี่</label>
+        <input type="file" accept="image/*" onchange="previewImage(this, 'img-license', 'empty-license')">
+      </div>
+    </div>
+    <div class="row">
+      <div class="form-group">
+        <label>สำเนาทะเบียนบ้าน</label>
+        <input type="file" accept="image/*" onchange="previewImage(this, 'img-house', 'empty-house')">
+      </div>
+      <div class="form-group">
+        <label>หน้าสมุดบัญชี / เอกสารอื่น</label>
+        <input type="file" accept="image/*" onchange="previewImage(this, 'img-bank', 'empty-bank')">
+      </div>
+    </div>
+
+    <div class="section-title">6. อ่านและรับทราบข้อตกลงสัญญาจ้างขนส่งและหนังสือยินยอม (PDPA)</div>
+    <div class="contract-review-box"><strong>สัญญาว่าจ้างขนส่งสินค้าและเป็นตัวแทนเรียกเก็บและดูแลรักษาเงินแทนผู้ว่าจ้าง</strong>
+
+ทำที่ บริษัท เหอไท่ เน็ตเวิร์ค เทคโนโลยี จำกัด
+วันที่ <span class="live-fill" data-live="day"></span> เดือน <span class="live-fill" data-live="month"></span> พ.ศ. <span class="live-fill" data-live="year"></span>
+สัญญาฉบับนี้ทำขึ้นระหว่าง: <strong>บริษัท เหอไท่ เน็ตเวิร์ค เทคโนโลยี จำกัด</strong> สำนักงานตั้งอยู่เลขที่ 1152 ถนนพระรามที่ 4 แขวงคลองเตย เขตคลองเตย กรุงเทพมหานคร ซึ่งต่อไปในสัญญานี้จะเรียกว่า "ผู้ว่าจ้าง" ฝ่ายหนึ่ง กับ
+ชื่อ <span class="live-fill" data-live="fullName">.........................</span> อายุ <span class="live-fill" data-live="age">........</span> ปี อยู่บ้านเลขที่ <span class="live-fill" data-live="address">..........................................................................................</span> เลขบัตรประจำตัวประชาชน <span class="live-fill" data-live="idCard">.......................................</span> ซึ่งต่อไปในสัญญานี้จะเรียกว่า "ผู้รับจ้าง" อีกฝ่ายหนึ่ง ทั้งสองฝ่ายตกลงทำสัญญากันโดยมีข้อความและเงื่อนไขดังต่อไปนี้:
+
+<strong>ข้อ 1. วัตถุประสงค์และลักษณะงาน</strong>
+1.1 ผู้ว่าจ้างตกลงจ้าง และผู้รับจ้างตกลงรับจ้างขนส่งและกระจายพัสดุภัณฑ์ไปยังบ้านเรือนหรือสถานที่ตามที่ผู้ว่าจ้างกำหนด โดยใช้ยานพาหนะของผู้รับจ้างเอง คือ <strong>รถจักรยานยนต์ (Biker) / รถยนต์ (4W Driver)</strong> (ประเภทที่สมัคร: <span class="live-fill" data-live="position">รถจักรยานยนต์ (Biker)</span>)
+1.1.1 เอกสารสำคัญรถขนส่งที่ต้องส่งมอบ ได้แก่:
+- สำเนาใบอนุญาตประกอบกิจการขนส่ง ของผู้รับจ้าง ซึ่งได้รับอนุญาตถูกต้องตามกฎหมาย
+- สำเนารายการคู่มือจดทะเบียนรถขนส่ง และใบตรวจสภาพรถขนส่ง ที่ได้รับการตรวจสภาพอย่างถูกต้องตามกฎหมายและเป็นไปตามมาตรฐานของงานรับจ้างขนส่งแต่ละประเภท
+- สำเนาทะเบียนบ้านและสำเนาบัตรประชาชน ของผู้รับจ้าง รวมถึงสำเนาใบขับขี่ของคนขับรถทุกคัน โดยต้องเป็นใบขับขี่ที่ตรงกับประเภทของรถที่ใช้ขนส่ง และต้องมีอายุครอบคลุมระยะเวลาการจ้างขนส่ง
+- สำเนากรมธรรม์ประกันภัยรถขนส่ง ที่ครอบคลุมระยะเวลาการปฏิบัติงาน
+- สำเนากรมธรรม์ประกันภัยสินค้า ที่ให้ความคุ้มครองสินค้าระหว่างการขนส่ง
+เอกสารดังกล่าว ต้องส่งมอบให้แก่ผู้ว่าจ้างก่อนเริ่มปฏิบัติงาน และต้องอัปเดตให้เป็นปัจจุบันตลอดระยะเวลาที่อยู่ภายใต้สัญญานี้
+1.2 สัญญานี้มีลักษณะเป็น งานพาร์ทไทม์ระยะสั้น (ชั่วคราว) ไม่มีข้อผูกมัดในฐานะนายจ้างกับลูกจ้าง ตามกฎหมายแรงงาน
+
+<strong>ข้อ 2. ระยะเวลาอันมีผลบังคับใช้</strong>
+สัญญาฉบับนี้มีผลบังคับใช้ตั้งแต่วันที่ <span class="live-fill" data-live="effectiveDate">………………………………………</span> เป็นต้นไป และให้มีผลบังคับใช้ตลอดระยะเวลาที่ผู้รับจ้างยังคงมีสถานะเป็นผู้รับจ้างของบริษัท จนถึงวันที่ผู้รับจ้างพ้นสภาพการเป็นผู้รับจ้างของบริษัท
+
+<strong>ข้อ 3. อัตราค่าจ้างและการจ่ายเงิน</strong>
+3.1 ผู้ว่าจ้างตกลงจ่ายค่าตอบแทนให้แก่ผู้รับจ้างในอัตรา : (อัตราที่เลือก: <span class="live-fill" data-live="rate">8 บาทต่อชิ้น</span>)
+1. มอเตอร์ไซค์ (Biker) : 8 บาทต่อชิ้น
+2. รถยนต์ (4W Driver) : 13 บาทต่อชิ้น (กรุงเทพและสมุทรปราการ) / 12 บาทต่อชิ้น (ปทุมธานี, นนทบุรี, สมุทรสาคร)
+หมายเหตุ: การคำนวณค่าตอบแทนให้พิจารณาจากจำนวนพัสดุที่จัดส่งสำเร็จตามหลักเกณฑ์และเงื่อนไขที่บริษัทกำหนด โดยอัตราค่าตอบแทนอาจมีการเปลี่ยนแปลงตามพื้นที่ให้บริการและประกาศของสำนักงานใหญ่ ทั้งนี้ ให้ยึดอัตราค่าตอบแทนตามประกาศล่าสุดของบริษัทเป็นหลัก สำหรับพนักงานขนส่งที่ใช้รถจักรยานยนต์ (Biker) จะได้รับค่าตอบแทนในอัตรา 8 บาทต่อชิ้น และรถยนต์ (4W Driver) จะได้รับค่าตอบแทนในอัตรา 13 บาทต่อชิ้น (กรุงเทพและสมุทรปราการ) และ 12 บาทต่อชิ้น (ปทุมธานี, นนทบุรี, สมุทรสาคร) โดยคำนวณตามจำนวนพัสดุที่จัดส่งสำเร็จทุกชิ้น เว้นแต่บริษัทจะมีประกาศเปลี่ยนแปลงเป็นลายลักษณ์อักษรในภายหลัง
+3.2 การจ่ายเงินจะทำการโอนเข้าบัญชีธนาคารของผู้รับจ้าง ทุกๆ วันพุธ ของสัปดาห์ โดยจะมีการหักภาษี ณ ที่จ่าย 1% ตามที่กฎหมายกำหนด
+
+<strong>ข้อ 4. ความรับผิดชอบของผู้รับจ้าง</strong>
+4.1 ความรับผิดชอบต่อพัสดุ: ผู้รับจ้างต้องดูแลรักษาพัสดุให้อยู่ในสภาพสมบูรณ์นับตั้งแต่รับมอบไปจนถึงมือผู้รับ หากพัสดุเกิดการสูญหาย ถูกโจรกรรม หรือเสียหายในระหว่างการขนส่งอันเกิดจากความประมาทเลินเล่อของผู้รับจ้าง ผู้รับจ้างต้องรับผิดชอบชดใช้ค่าเสียหายตามมูลค่าจริงของพัสดุนั้นๆ หรือตามที่ระบุในใบนำส่งสินค้า
+4.2 การบริหารจัดการเงินเก็บปลายทาง (COD): หากเป็นการส่งพัสดุประเภทเก็บเงินปลายทาง ผู้รับจ้างมีหน้าที่เรียกเก็บเงินจากลูกค้าให้ครบถ้วนและถูกต้อง และต้องนำส่งเงินดังกล่าวคืนให้แก่ผู้ว่าจ้างภายในวันที่ปฏิบัติงานทันที หากเกิดการสูญหายของเงินสด ผู้รับจ้างต้องรับผิดชอบเต็มจำนวน
+4.3 อุบัติเหตุและค่าใช้จ่ายของยานพาหนะ: ผู้รับจ้างเป็นผู้รับผิดชอบค่าใช้จ่ายในการบำรุงรักษารถ ค่าน้ำมันเชื้อเพลิง รวมถึงความเสี่ยงภัยจากอุบัติเหตุทางรถยนต์ทั้งหมดเอง ทั้งนี้ ผู้รับจ้างต้องมีประกันภัยรถยนต์ภาคบังคับ (พ.ร.บ.) และต้องมีประกันภัยอื่นที่จำเป็นต้องมี เพื่อคุ้มครองในระหว่างการปฏิบัติงาน
+4.4 กรณีที่เกิดจากการกระทำของผู้รับจ้างและพนักงานของผู้รับจ้าง ผู้รับจ้างต้องรับผิดชอบความเสียหายที่เกิดขึ้นจากการกระทำของตนเอง หรือของพนักงานและผู้รับจ้างของตน ซึ่งรวมถึง:
+- ไม่ปฏิบัติตามสัญญา หรือกระทำผิดเงื่อนไขในสัญญานี้
+- มีพฤติกรรมที่แสดงถึงการละเลย หรือไม่ดูแลรับผิดชอบต่อสินค้า หรือไม่ได้ใช้ความระมัดระวังตามสมควร เช่น ขับรถโดยประมาทเลินเล่อ ไม่ตรวจสอบความปลอดภัยของสินค้า
+- กระทำความผิดทางอาญา เช่น ลักทรัพย์ วิ่งราวทรัพย์ ชิงทรัพย์ ปล้นทรัพย์ ยักยอกทรัพย์ ฉ้อโกง หรือความผิดทางอาญาอื่นๆ ที่เกี่ยวข้องกับสินค้าที่ขนส่ง รวมถึงเป็นผู้ที่มีส่วนรู้เห็น หรือสนับสนุนการกระทำดังกล่าว
+4.5 ส่วนรับผิดชอบต่อสินค้าผิดกฎหมาย ที่ผู้รับจ้างเป็นผู้ขนส่ง: ผู้ว่าจ้างไม่มีส่วนเกี่ยวข้องหรือรับผิดชอบในการกระทำผิดของผู้รับจ้างในการครอบครองหรือถือครองสิ่งผิดกฎหมายของผู้รับจ้าง ไม่ว่าจะโดยเจตนาหรือไม่ก็ตาม และผู้รับจ้างต้องเป็นผู้รับผิดชอบแต่เพียงผู้เดียว
+4.6 ผู้รับจ้างไม่มีสิทธิ์ปฏิเสธความรับผิดชอบต่อผู้ว่าจ้าง ไม่ว่ากรณีใดๆ และต้องรับผิดชอบต่อค่าเสียหายทั้งหมดที่เกิดขึ้นจากการปฏิบัติงานภายใต้สัญญาฉบับนี้
+
+<strong>ข้อ 5. ข้อกำหนดการปฏิบัติงานและการยกเลิกสัญญา</strong>
+5.1 ผู้รับจ้างต้องแต่งกายสุภาพและแสดงกิริยาวาจาที่เหมาะสมต่อผู้รับพัสดุ
+5.2 หากผู้รับจ้างไม่สามารถมาทำงานในวันที่ตกลงไว้ได้ ต้องแจ้งให้ผู้ว่าจ้างทราบล่วงหน้าอย่างน้อย 1 วัน
+5.3 หากฝ่ายใดฝ่ายหนึ่งประสงค์จะเลิกสัญญาก่อนกำหนด สามารถทำได้โดยแจ้งให้อีกฝ่ายทราบล่วงหน้าอย่างน้อย 15 วัน หรือหากผู้รับจ้างทุจริต/ละทิ้งงาน ผู้ว่าจ้างมีสิทธิ์บอกเลิกสัญญาได้ทันที
+สัญญาฉบับนี้ทำขึ้นเป็นสองฉบับมีข้อความถูกต้องตรงกัน ทั้งสองฝ่ายได้อ่านและเข้าใจข้อความโดยตลอดแล้ว จึงได้ลงลายมือชื่อไว้เป็นสำคัญต่อหน้าพยาน
+
+<strong>เอกสารแนบท้าย 1 : รายละเอียดของงานบริการภายใต้สัญญาฉบับนี้</strong>
+ขอบเขตของงานบริการ
+1. ผู้รับจ้างจะต้องเข้ารับพัสดุและสินค้า ณ จุดที่กำหนด และนำส่งพัสดุและสินค้าดังกล่าว ณ ที่อยู่ปลายทางในสภาพที่ดี
+2. ในกรณีที่เป็นพัสดุหรือสินค้าที่จะต้องเก็บเงินค่าพัสดุหรือสินค้าจากผู้รับปลายทาง ผู้รับจ้างจะต้องดำเนินการเก็บเงินดังกล่าวในนามของผู้ว่าจ้าง ตามวิธีการที่ผู้ว่าจ้างกำหนด
+3. ผู้รับจ้างจะต้องเข้ารับพัสดุและสินค้า Drop-Off จากร้านค้าหรือผู้ส่ง ณ สถานที่ที่กำหนดและนำมาส่ง ณ ศูนย์จัดการสินค้าให้ทันตามเวลา
+4. ผู้รับจ้างจะต้องปฏิบัติงานในวันและเวลาที่ผู้ว่าจ้างกำหนด
+5. ผู้รับจ้างจะต้องตรวจสอบและนับจำนวนและสภาพพัสดุและสินค้าก่อนรับและส่งเพื่อให้ตรงกับเอกสารกำกับ
+6. ผู้รับจ้างจะต้องจัดเรียงสินค้าในรถให้ปลอดภัย และไม่ให้เกิดความเสียหาย
+7. ผู้รับจ้างจะต้องดูแลเอกสารประกอบการขนส่งให้เรียบร้อยไม่ให้เกิดความเสียหาย
+8. ในกรณีที่พัสดุหรือสินค้ามีขนาดใหญ่หรือน้ำหนักมาก ผู้รับจ้างจะต้องใช้ความระมัดระวังในการจัดส่งหรือรับสินค้าและจะต้องมีเครื่องมือช่วยเพื่อไม่ให้เกิดความเสียหายจากการจัดส่งหรือรับสินค้า
+9. ผู้รับจ้างจะต้องดูแลรักษาความสะอาดของรถยนต์ที่ใช้อยู่เสมอและบำรุงรักษาให้อยู่ในสภาพที่ดี
+10. ผู้รับจ้างจะต้องทำเอกสารหรือหลักฐานในการรับส่งสินค้าตามที่กำหนด
+11. ในกรณีที่ผู้รับจ้างไม่สามารถปฏิบัติงานในวันใดได้ ผู้รับจ้างจะต้องแจ้งให้ผู้ว่าจ้างทราบล่วงหน้าโดยพลัน และจัดหาผู้ปฏิบัติงานอื่นมาดำเนินการแทนด้วยค่าใช้จ่ายของผู้รับจ้าง
+12. ในกรณีที่ประสบปัญหาเกี่ยวกับการจัดส่งพัสดุหรือสินค้าหรือประสบอุบัติเหตุระหว่างการปฏิบัติงาน ผู้รับจ้างจะต้องแจ้งให้ผู้ว่าจ้างหรือศูนย์ประสานทราบทันที
+13. ผู้รับจ้างจะต้องสวมใส่เครื่องแบบตามที่ผู้ว่าจ้างกำหนด
+14. ผู้รับจ้างจะต้องเข้ารับการอบรมตามที่ผู้ว่าจ้างหรือบริษัทคู่ค้ากำหนดอย่างเคร่งครัด
+15. ผู้รับจ้างต้องแนบสำเนาเอกสารประกันภัยรถยนต์ประเภทที่ 1, 2 และ 3 ประกอบกับสัญญาจ้างฉบับนี้ด้วย
+
+<strong>เอกสารแนบท้าย 2 : แบบหนังสือให้ความยินยอมเกี่ยวกับข้อมูลส่วนบุคคล</strong>
+หนังสือให้ความยินยอมสำหรับการเก็บรวบรวม ใช้ และเปิดเผยข้อมูลส่วนบุคคล
+โดยการลงลายมือชื่อในเอกสารฉบับนี้ ข้าพเจ้า <span class="live-fill" data-live="fullName">……………………………………..</span> ในฐานะเจ้าของข้อมูลส่วนบุคคล ตกลงยินยอมให้ บริษัท เหอไท่ เน็ตเวิร์ค เทคโนโลยี จำกัด และบริษัทในเครือ (“บริษัทฯ”) ดำเนินการดังต่อไปนี้
+- เก็บรวบรวม ใช้ และเปิดเผยข้อมูลส่วนบุคคลที่มีความอ่อนไหวดังต่อไปนี้ของข้าพเจ้า เพื่อวัตถุประสงค์ต่างๆ ที่เกี่ยวข้องกับการสัญญาจ้างทำของและการให้บริการภายใต้สัญญาอื่นๆ ที่เกี่ยวข้อง ตลอดจนเพื่อดำเนินการอื่นๆ ที่จำเป็นหรือเกี่ยวเนื่องกับวัตถุประสงค์ดังกล่าว
+  • ข้อมูลศาสนา และ/หรือหมู่โลหิต ที่ปรากฏอยู่บนบัตรประจำตัวประชาชน
+  • ข้อมูลสุขภาพ
+  • ประวัติอาชญากรรมที่ปรากฏอยู่ในผลตรวจประวัติบุคคล
+  • ข้อมูลชีวภาพ เช่น ลายนิ้วมือ ฝ่ามือ และภาพสแกนใบหน้า
+  • ข้อมูลเกี่ยวกับตำแหน่งทางภูมิศาสตร์ของรถยนต์ที่ใช้ในการขนส่งหรือดำเนินงานบริการภายใต้สัญญาจ้าง
+- เก็บรวบรวม ใช้ และเปิดเผยข้อมูลส่วนบุคคลที่มีความอ่อนไหวดังต่อไปนี้ของข้าพเจ้า เพื่อวัตถุประสงค์ต่างๆ ที่เกี่ยวข้องกับการปฏิบัติการต่างๆ ให้เป็นไปตามสัญญาจ้าง และรวมถึงการตรวจสอบผู้รับจ้าง เช่น การตรวจสารเสพติด ตลอดจนเพื่อดำเนินการอื่นๆ ที่จำเป็นหรือเกี่ยวเนื่องกับวัตถุประสงค์ดังกล่าว
+  • ข้อมูลสุขภาพ ผลการตรวจสุขภาพ ผลการตรวจสารเสพติด และ/หรือเอกสารอื่นๆ
+ทั้งนี้ ข้าพเจ้าได้อ่านและรับทราบสิทธิในฐานะเจ้าของข้อมูลส่วนบุคคลตามที่ระบุไว้ในประกาศเกี่ยวกับการคุ้มครองข้อมูลส่วนบุคคลของบริษัทฯ เรียบร้อยแล้ว</div>
+
+    <div class="consent-group">
+      <label class="checkbox-label">
+        <input type="checkbox" id="chk-contract" onchange="checkConsent()">
+        <span>ข้าพเจ้าได้อ่านและเข้าใจข้อกำหนดใน "สัญญาว่าจ้างขนส่งสินค้าฯ และเอกสารแนบท้าย 1" โดยตลอดแล้ว และตกลงยอมรับเงื่อนไขทุกประการ</span>
+      </label>
+      <label class="checkbox-label">
+        <input type="checkbox" id="chk-pdpa" onchange="checkConsent()">
+        <span>ข้าพเจ้าได้อ่านและรับทราบ "หนังสือให้ความยินยอมเกี่ยวกับข้อมูลส่วนบุคคล (เอกสารแนบท้าย 2)" และยินยอมให้ดำเนินการตามวัตถุประสงค์ที่ระบุ</span>
+      </label>
+    </div>
+
+    <div class="section-title">7. ลงลายมือชื่อผู้สมัคร (ใช้ในใบสมัคร สัญญาจ้าง และหนังสือยินยอม)</div>
+    <div class="form-group">
+      <div class="sig-wrapper">
+        <div class="sig-box">
+          <canvas id="signature-pad"></canvas>
+        </div>
+        <div class="sig-lock-overlay" id="sig-lock-msg">
+          กรุณาติ๊กยืนยันรับทราบสัญญาจ้างและหนังสือยินยอม (ข้อ 6) ด้านบนก่อนลงลายมือชื่อ
+        </div>
+      </div>
+      <button type="button" class="btn btn-secondary" onclick="clearSignature()">ล้างลายเซ็น</button>
+    </div>
+
+    <button type="button" id="build-btn" class="btn btn-primary" onclick="buildDocuments()" disabled>สร้างใบสมัครและสัญญาจ้างขนส่ง</button>
+  </div>
+
+  <!-- ================= ส่วนแสดงตัวอย่างเอกสาร ================= -->
+  <div id="preview-section">
+    <div class="view-tabs">
+      <button type="button" class="tab-btn active" id="tab-all" onclick="switchDocView('all')">ดูทั้งหมด</button>
+      <button type="button" class="tab-btn" id="tab-p1" onclick="switchDocView('p1')">ใบสมัครงาน</button>
+      <button type="button" class="tab-btn" id="tab-docs" onclick="switchDocView('docs')">เอกสารประกอบ (หน้าละแผ่น)</button>
+      <button type="button" class="tab-btn" id="tab-p2" onclick="switchDocView('p2')">สัญญาจ้าง</button>
+      <button type="button" class="tab-btn" id="tab-p3" onclick="switchDocView('p3')">แนบท้าย 1</button>
+      <button type="button" class="tab-btn" id="tab-p4" onclick="switchDocView('p4')">แนบท้าย 2 (PDPA)</button>
+    </div>
+
+    <div class="pdf-scroll-wrap">
+      <div id="pdf-content">
+        <!-- หน้า 1: ใบสมัครงาน (พอดีหน้า A4) -->
+        <div class="pdf-page doc-group-p1" id="doc-page-1">
+          <div class="app-top-banner">
+            <div class="brand-header">
+              <img class="company-logo bind-logo" src="hetai-logo.png" alt="โลโก้บริษัท เหอไท่">
+              <div class="brand-title-group">
+                <div class="doc-title">ใบสมัครงาน (APPLICATION FORM)</div>
+                <div class="doc-subtitle">บริษัท เหอไท่ เน็ตเวิร์ค เทคโนโลยี จำกัด</div>
+                <div class="doc-subtitle">วันที่ยื่นใบสมัคร: <span class="fill-data" data-bind="fullDate"></span> | รหัสพนักงาน: <span class="fill-data" data-bind="employeeCode"></span></div>
+              </div>
+            </div>
+            <div class="applicant-photo-box">
+              <img id="doc-applicant-photo" class="applicant-photo-img" src="" alt="รูปถ่ายผู้สมัคร" style="display:none;">
+              <div id="doc-applicant-photo-empty" class="applicant-photo-placeholder">รูปถ่าย<br>ผู้สมัคร</div>
+            </div>
+          </div>
+
+          <table class="app-table">
+            <tr>
+              <th>รหัสพนักงาน</th>
+              <td><span class="fill-data" data-bind="employeeCode"></span></td>
+              <th>ชื่อ-นามสกุล</th>
+              <td><span class="fill-data" data-bind="fullName"></span></td>
+            </tr>
+            <tr>
+              <th>อายุ / เลขบัตรฯ</th>
+              <td><span class="fill-data" data-bind="age"></span> ปี | <span class="fill-data" data-bind="idCard"></span></td>
+              <th>เบอร์โทรศัพท์</th>
+              <td><span class="fill-data" data-bind="phone"></span></td>
+            </tr>
+            <tr>
+              <th>ประเภทรถ / ตำแหน่ง</th>
+              <td><span class="fill-data" data-bind="position"></span></td>
+              <th>ทะเบียนรถ</th>
+              <td><span class="fill-data" data-bind="plateNumber"></span></td>
+            </tr>
+            <tr>
+              <th>พื้นที่ / Hub</th>
+              <td><span class="fill-data" data-bind="hubLocation"></span></td>
+              <th>อัตราค่าตอบแทน</th>
+              <td><span class="fill-data" data-bind="rate"></span></td>
+            </tr>
+            <tr>
+              <th>วันเริ่มมีผลบังคับใช้</th>
+              <td><span class="fill-data" data-bind="effectiveDate"></span></td>
+              <th>ธนาคาร / เลขบัญชี</th>
+              <td><span class="fill-data" data-bind="bankName"></span> | <span class="fill-data" data-bind="bankAccount"></span></td>
+            </tr>
+            <tr>
+              <th>ชื่อบัญชีรับเงิน</th>
+              <td><span class="fill-data" data-bind="bankAccountName"></span></td>
+              <th>ติดต่อฉุกเฉิน</th>
+              <td><span class="fill-data" data-bind="emerName"></span> (<span class="fill-data" data-bind="emerRelation"></span>) โทร. <span class="fill-data" data-bind="emerPhone"></span></td>
+            </tr>
+            <tr>
+              <th>ที่อยู่ปัจจุบัน</th>
+              <td colspan="3"><span class="fill-data" data-bind="address"></span></td>
+            </tr>
+            <tr>
+              <th>ที่อยู่ตามทะเบียนบ้าน</th>
+              <td colspan="3"><span class="fill-data" data-bind="registeredAddress"></span></td>
+            </tr>
+          </table>
+
+          <div class="sign-area">
+            <div class="sign-block" style="margin-left: auto;">
+              <div class="sign-slot">
+                <img class="sign-img bind-sig" src="" alt="ลายเซ็น">
+                <span class="sign-line">......................................................</span>
+              </div>
+              <p class="sign-caption">( <span data-bind="signName"></span> )<br>ผู้สมัครงาน</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="pdf-page page-break doc-group-docs" id="doc-page-id">
+          <div class="doc-header">
+            <img class="company-logo bind-logo" src="hetai-logo.png" alt="โลโก้บริษัท เหอไท่">
+            <div>
+              <div class="doc-title">เอกสารประกอบการสมัคร (1/4) : สำเนาบัตรประจำตัวประชาชน</div>
+              <div class="doc-subtitle">ผู้สมัคร: <span class="fill-data" data-bind="fullName"></span> | รหัสพนักงาน: <span class="fill-data" data-bind="employeeCode"></span></div>
+            </div>
+          </div>
+          <div class="attachment-box">
+            <img id="img-id" class="attachment-img" src="" alt="สำเนาบัตรประจำตัวประชาชน" style="display:none;">
+            <div id="empty-id" class="attachment-empty">ไม่ได้แนบไฟล์สำเนาบัตรประจำตัวประชาชน</div>
+          </div>
+        </div>
+
+        <div class="pdf-page page-break doc-group-docs" id="doc-page-license">
+          <div class="doc-header">
+            <img class="company-logo bind-logo" src="hetai-logo.png" alt="โลโก้บริษัท เหอไท่">
+            <div>
+              <div class="doc-title">เอกสารประกอบการสมัคร (2/4) : สำเนาใบอนุญาตขับขี่</div>
+              <div class="doc-subtitle">ผู้สมัคร: <span class="fill-data" data-bind="fullName"></span> | ประเภทรถ: <span class="fill-data" data-bind="position"></span></div>
+            </div>
+          </div>
+          <div class="attachment-box">
+            <img id="img-license" class="attachment-img" src="" alt="สำเนาใบอนุญาตขับขี่" style="display:none;">
+            <div id="empty-license" class="attachment-empty">ไม่ได้แนบไฟล์สำเนาใบอนุญาตขับขี่</div>
+          </div>
+        </div>
+
+        <div class="pdf-page page-break doc-group-docs" id="doc-page-house">
+          <div class="doc-header">
+            <img class="company-logo bind-logo" src="hetai-logo.png" alt="โลโก้บริษัท เหอไท่">
+            <div>
+              <div class="doc-title">เอกสารประกอบการสมัคร (3/4) : สำเนาทะเบียนบ้าน</div>
+              <div class="doc-subtitle">ผู้สมัคร: <span class="fill-data" data-bind="fullName"></span> | วันที่ยื่น: <span class="fill-data" data-bind="fullDate"></span></div>
+            </div>
+          </div>
+          <div class="attachment-box">
+            <img id="img-house" class="attachment-img" src="" alt="สำเนาทะเบียนบ้าน" style="display:none;">
+            <div id="empty-house" class="attachment-empty">ไม่ได้แนบไฟล์สำเนาทะเบียนบ้าน</div>
+          </div>
+        </div>
+
+        <div class="pdf-page page-break doc-group-docs" id="doc-page-bank">
+          <div class="doc-header">
+            <img class="company-logo bind-logo" src="hetai-logo.png" alt="โลโก้บริษัท เหอไท่">
+            <div>
+              <div class="doc-title">เอกสารประกอบการสมัคร (4/4) : สำเนาหน้าสมุดบัญชี / เอกสารอื่น</div>
+              <div class="doc-subtitle">ผู้สมัคร: <span class="fill-data" data-bind="fullName"></span> | ธนาคาร: <span class="fill-data" data-bind="bankName"></span></div>
+            </div>
+          </div>
+          <div class="attachment-box">
+            <img id="img-bank" class="attachment-img" src="" alt="สำเนาหน้าสมุดบัญชี" style="display:none;">
+            <div id="empty-bank" class="attachment-empty">ไม่ได้แนบไฟล์สำเนาหน้าสมุดบัญชี / เอกสารอื่น</div>
+          </div>
+        </div>
+
+        <div class="pdf-page page-break doc-group-p2" id="doc-page-2">
+          <div class="doc-header">
+            <img class="company-logo bind-logo" src="hetai-logo.png" alt="โลโก้บริษัท เหอไท่">
+            <div>
+              <div class="doc-title">สัญญาว่าจ้างขนส่งสินค้าและเป็นตัวแทนเรียกเก็บและดูแลรักษาเงินแทนผู้ว่าจ้าง</div>
+              <div class="doc-subtitle">ทำที่ บริษัท เหอไท่ เน็ตเวิร์ค เทคโนโลยี จำกัด | วันที่ <span class="fill-data" data-bind="day"></span> เดือน <span class="fill-data" data-bind="month"></span> พ.ศ. <span class="fill-data" data-bind="year"></span></div>
+            </div>
+          </div>
+
+          <div class="contract-body">
+            <p>สัญญาฉบับนี้ทำขึ้นระหว่าง: บริษัท เหอไท่ เน็ตเวิร์ค เทคโนโลยี จำกัด สำนักงานตั้งอยู่เลขที่ 1152 ถนนพระรามที่ 4 แขวงคลองเตย เขตคลองเตย กรุงเทพมหานคร ซึ่งต่อไปในสัญญานี้จะเรียกว่า "ผู้ว่าจ้าง" ฝ่ายหนึ่ง กับ</p>
+            <p>ชื่อ <span class="fill-data" data-bind="fullName"></span> อายุ <span class="fill-data" data-bind="age"></span> ปี ที่อยู่ตามทะเบียนบ้าน <span class="fill-data" data-bind="registeredAddress"></span> อยู่บ้านเลขที่ (ปัจจุบัน) <span class="fill-data" data-bind="address"></span> โทรศัพท์ <span class="fill-data" data-bind="phone"></span> เลขบัตรประจำตัวประชาชน <span class="fill-data" data-bind="idCard"></span> (บุคคลติดต่อฉุกเฉิน: <span class="fill-data" data-bind="emerName"></span> [<span class="fill-data" data-bind="emerRelation"></span>] โทร. <span class="fill-data" data-bind="emerPhone"></span>) ซึ่งต่อไปในสัญญานี้จะเรียกว่า "ผู้รับจ้าง" อีกฝ่ายหนึ่ง ทั้งสองฝ่ายตกลงทำสัญญากันโดยมีข้อความและเงื่อนไขดังต่อไปนี้:</p>
+
+            <div class="clause-title">ข้อ 1. วัตถุประสงค์และลักษณะงาน</div>
+            <p>1.1 ผู้ว่าจ้างตกลงจ้าง และผู้รับจ้างตกลงรับจ้างขนส่งและกระจายพัสดุภัณฑ์ไปยังบ้านเรือนหรือสถานที่ตามที่ผู้ว่าจ้างกำหนด โดยใช้ยานพาหนะของผู้รับจ้างเอง คือ รถจักรยานยนต์ (Biker) / รถยนต์ (4W Driver) (ประเภทที่สมัคร: <span class="fill-data" data-bind="position"></span>) ทะเบียน <span class="fill-data" data-bind="plateNumber"></span> พื้นที่/Hub <span class="fill-data" data-bind="hubLocation"></span></p>
+            <p class="clause-title" style="margin-top: 8px; font-size: 13px;">1.1.1 เอกสารสำคัญรถขนส่งที่ต้องส่งมอบ ได้แก่:</p>
+            <ul>
+              <li>สำเนาใบอนุญาตประกอบกิจการขนส่ง ของผู้รับจ้าง ซึ่งได้รับอนุญาตถูกต้องตามกฎหมาย</li>
+              <li>สำเนารายการคู่มือจดทะเบียนรถขนส่ง และใบตรวจสภาพรถขนส่ง ที่ได้รับการตรวจสภาพอย่างถูกต้องตามกฎหมายและเป็นไปตามมาตรฐานของงานรับจ้างขนส่งแต่ละประเภท</li>
+              <li>สำเนาทะเบียนบ้านและสำเนาบัตรประชาชน ของผู้รับจ้าง รวมถึงสำเนาใบขับขี่ของคนขับรถทุกคัน โดยต้องเป็นใบขับขี่ที่ตรงกับประเภทของรถที่ใช้ขนส่ง และต้องมีอายุครอบคลุมระยะเวลาการจ้างขนส่ง</li>
+              <li>สำเนากรมธรรม์ประกันภัยรถขนส่ง ที่ครอบคลุมระยะเวลาการปฏิบัติงาน</li>
+              <li>สำเนากรมธรรม์ประกันภัยสินค้า ที่ให้ความคุ้มครองสินค้าระหว่างการขนส่ง</li>
+            </ul>
+            <p>เอกสารดังกล่าว ต้องส่งมอบให้แก่ผู้ว่าจ้างก่อนเริ่มปฏิบัติงาน และต้องอัปเดตให้เป็นปัจจุบันตลอดระยะเวลาที่อยู่ภายใต้สัญญานี้</p>
+            <p>1.2 สัญญานี้มีลักษณะเป็น งานพาร์ทไทม์ระยะสั้น (ชั่วคราว) ไม่มีข้อผูกมัดในฐานะนายจ้างกับลูกจ้าง ตามกฎหมายแรงงาน</p>
+
+            <div class="clause-title">ข้อ 2. ระยะเวลาอันมีผลบังคับใช้</div>
+            <p>สัญญาฉบับนี้มีผลบังคับใช้ตั้งแต่วันที่ <span class="fill-data" data-bind="effectiveDate"></span> เป็นต้นไป และให้มีผลบังคับใช้ตลอดระยะเวลาที่ผู้รับจ้างยังคงมีสถานะเป็นผู้รับจ้างของบริษัท จนถึงวันที่ผู้รับจ้างพ้นสภาพการเป็นผู้รับจ้างของบริษัท</p>
+
+            <div class="clause-title">ข้อ 3. อัตราค่าจ้างและการจ่ายเงิน</div>
+            <p>3.1 ผู้ว่าจ้างตกลงจ่ายค่าตอบแทนให้แก่ผู้รับจ้างในอัตรา : (อัตราที่เลือก: <span class="fill-data" data-bind="rate"></span>)</p>
+            <div class="rate-box">
+              <div><strong>1. รถจักรยานยนต์ (Biker) :</strong> 8 บาทต่อชิ้น</div>
+              <div><strong>2. รถยนต์ (4W Driver) :</strong> 13 บาทต่อชิ้น (กรุงเทพและสมุทรปราการ) / 12 บาทต่อชิ้น (ปทุมธานี, นนทบุรี, สมุทรสาคร)</div>
+            </div>
+            <p>หมายเหตุ: การคำนวณค่าตอบแทนให้พิจารณาจากจำนวนพัสดุที่จัดส่งสำเร็จตามหลักเกณฑ์และเงื่อนไขที่บริษัทกำหนด โดยอัตราค่าตอบแทนอาจมีการเปลี่ยนแปลงตามพื้นที่ให้บริการและประกาศของสำนักงานใหญ่ ทั้งนี้ ให้ยึดอัตราค่าตอบแทนตามประกาศล่าสุดของบริษัทเป็นหลัก สำหรับพนักงานขนส่งที่ใช้รถจักรยานยนต์ (Biker) จะได้รับค่าตอบแทนในอัตรา 8 บาทต่อชิ้น และรถยนต์ (4W Driver) จะได้รับค่าตอบแทนในอัตรา 13 บาทต่อชิ้น (กรุงเทพและสมุทรปราการ) และ 12 บาทต่อชิ้น (ปทุมธานี, นนทบุรี, สมุทรสาคร) โดยคำนวณตามจำนวนพัสดุที่จัดส่งสำเร็จทุกชิ้น เว้นแต่บริษัทจะมีประกาศเปลี่ยนแปลงเป็นลายลักษณ์อักษรในภายหลัง</p>
+            <p>3.2 การจ่ายเงินจะทำการโอนเข้าบัญชีธนาคารของผู้รับจ้าง (<span class="fill-data" data-bind="bankName"></span> ชื่อบัญชี <span class="fill-data" data-bind="bankAccountName"></span> เลขที่ <span class="fill-data" data-bind="bankAccount"></span>) ทุกๆ วันพุธ ของสัปดาห์ โดยจะมีการหักภาษี ณ ที่จ่าย 1% ตามที่กฎหมายกำหนด</p>
+
+            <div class="clause-title">ข้อ 4. ความรับผิดชอบของผู้รับจ้าง</div>
+            <p>4.1 ความรับผิดชอบต่อพัสดุ: ผู้รับจ้างต้องดูแลรักษาพัสดุให้อยู่ในสภาพสมบูรณ์นับตั้งแต่รับมอบไปจนถึงมือผู้รับ หากพัสดุเกิดการสูญหาย ถูกโจรกรรม หรือเสียหายในระหว่างการขนส่งอันเกิดจากความประมาทเลินเล่อของผู้รับจ้าง ผู้รับจ้างต้องรับผิดชอบชดใช้ค่าเสียหายตามมูลค่าจริงของพัสดุนั้นๆ หรือตามที่ระบุในใบนำส่งสินค้า</p>
+            <p>4.2 การบริหารจัดการเงินเก็บปลายทาง (COD): หากเป็นการส่งพัสดุประเภทเก็บเงินปลายทาง ผู้รับจ้างมีหน้าที่เรียกเก็บเงินจากลูกค้าให้ครบถ้วนและถูกต้อง และต้องนำส่งเงินดังกล่าวคืนให้แก่ผู้ว่าจ้างภายในวันที่ปฏิบัติงานทันที หากเกิดการสูญหายของเงินสด ผู้รับจ้างต้องรับผิดชอบเต็มจำนวน</p>
+            <p>4.3 อุบัติเหตุและค่าใช้จ่ายของยานพาหนะ: ผู้รับจ้างเป็นผู้รับผิดชอบค่าใช้จ่ายในการบำรุงรักษารถ ค่าน้ำมันเชื้อเพลิง รวมถึงความเสี่ยงภัยจากอุบัติเหตุทางรถยนต์ทั้งหมดเอง ทั้งนี้ ผู้รับจ้างต้องมีประกันภัยรถยนต์ภาคบังคับ (พ.ร.บ.) และต้องมีประกันภัยอื่นที่จำเป็นต้องมี เพื่อคุ้มครองในระหว่างการปฏิบัติงาน</p>
+            <p>4.4 กรณีที่เกิดจากการกระทำของผู้รับจ้างและพนักงานของผู้รับจ้าง ผู้รับจ้างต้องรับผิดชอบความเสียหายที่เกิดขึ้นจากการกระทำของตนเอง หรือของพนักงานและผู้รับจ้างของตน ซึ่งรวมถึง:</p>
+            <ul>
+              <li>ไม่ปฏิบัติตามสัญญา หรือกระทำผิดเงื่อนไขในสัญญานี้</li>
+              <li>มีพฤติกรรมที่แสดงถึงการละเลย หรือไม่ดูแลรับผิดชอบต่อสินค้า หรือไม่ได้ใช้ความระมัดระวังตามสมควร เช่น ขับรถโดยประมาทเลินเล่อ ไม่ตรวจสอบความปลอดภัยของสินค้า</li>
+              <li>กระทำความผิดทางอาญา เช่น ลักทรัพย์ วิ่งราวทรัพย์ ชิงทรัพย์ ปล้นทรัพย์ ยักยอกทรัพย์ ฉ้อโกง หรือความผิดทางอาญาอื่นๆ ที่เกี่ยวข้องกับสินค้าที่ขนส่ง รวมถึงเป็นผู้ที่มีส่วนรู้เห็น หรือสนับสนุนการกระทำดังกล่าว</li>
+            </ul>
+            <p>4.5 ส่วนรับผิดชอบต่อสินค้าผิดกฎหมาย ที่ผู้รับจ้างเป็นผู้ขนส่ง: ผู้ว่าจ้างไม่มีส่วนเกี่ยวข้องหรือรับผิดชอบในการกระทำผิดของผู้รับจ้างในการครอบครองหรือถือครองสิ่งผิดกฎหมายของผู้รับจ้าง ไม่ว่าจะโดยเจตนาหรือไม่ก็ตาม และผู้รับจ้างต้องเป็นผู้รับผิดชอบแต่เพียงผู้เดียว</p>
+            <p>4.6 ผู้รับจ้างไม่มีสิทธิ์ปฏิเสธความรับผิดชอบต่อผู้ว่าจ้าง ไม่ว่ากรณีใดๆ และต้องรับผิดชอบต่อค่าเสียหายทั้งหมดที่เกิดขึ้นจากการปฏิบัติงานภายใต้สัญญาฉบับนี้</p>
+
+            <div class="avoid-break">
+              <div class="clause-title">ข้อ 5. ข้อกำหนดการปฏิบัติงานและการยกเลิกสัญญา</div>
+              <p>5.1 ผู้รับจ้างต้องแต่งกายสุภาพและแสดงกิริยาวาจาที่เหมาะสมต่อผู้รับพัสดุ</p>
+              <p>5.2 หากผู้รับจ้างไม่สามารถมาทำงานในวันที่ตกลงไว้ได้ ต้องแจ้งให้ผู้ว่าจ้างทราบล่วงหน้าอย่างน้อย 1 วัน</p>
+              <p>5.3 หากฝ่ายใดฝ่ายหนึ่งประสงค์จะเลิกสัญญาก่อนกำหนด สามารถทำได้โดยแจ้งให้อีกฝ่ายทราบล่วงหน้าอย่างน้อย 15 วัน หรือหากผู้รับจ้างทุจริต/ละทิ้งงาน ผู้ว่าจ้างมีสิทธิ์บอกเลิกสัญญาได้ทันที</p>
+              <p style="margin-top: 8px;">สัญญาฉบับนี้ทำขึ้นเป็นสองฉบับมีข้อความถูกต้องตรงกัน ทั้งสองฝ่ายได้อ่านและเข้าใจข้อความโดยตลอดแล้ว จึงได้ลงลายมือชื่อไว้เป็นสำคัญต่อหน้าพยาน</p>
+
+              <div class="sign-area">
+                <div class="sign-block">
+                  <div class="sign-slot">
+                    <span class="sign-line">......................................................</span>
+                  </div>
+                  <p class="sign-caption">( ...................................................... )<br>ผู้ว่าจ้าง</p>
+                </div>
+                <div class="sign-block">
+                  <div class="sign-slot">
+                    <img class="sign-img bind-sig" src="" alt="ลายเซ็น">
+                    <span class="sign-line">......................................................</span>
+                  </div>
+                  <p class="sign-caption">( <span data-bind="signName"></span> )<br>ผู้รับจ้าง</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="pdf-page page-break doc-group-p3" id="doc-page-3">
+          <div class="doc-header">
+            <img class="company-logo bind-logo" src="hetai-logo.png" alt="โลโก้บริษัท เหอไท่">
+            <div>
+              <div class="doc-title">เอกสารแนบท้าย 1</div>
+              <div class="doc-subtitle">รายละเอียดของงานบริการภายใต้สัญญาฉบับนี้</div>
+            </div>
+          </div>
+
+          <div class="contract-body">
+            <div class="clause-title" style="margin-top: 0;">ขอบเขตของงานบริการ</div>
+            <ol>
+              <li>ผู้รับจ้างจะต้องเข้ารับพัสดุและสินค้า ณ จุดที่กำหนด และนำส่งพัสดุและสินค้าดังกล่าว ณ ที่อยู่ปลายทางในสภาพที่ดี</li>
+              <li>ในกรณีที่เป็นพัสดุหรือสินค้าที่จะต้องเก็บเงินค่าพัสดุหรือสินค้าจากผู้รับปลายทาง ผู้รับจ้างจะต้องดำเนินการเก็บเงินดังกล่าวในนามของผู้ว่าจ้าง ตามวิธีการที่ผู้ว่าจ้างกำหนด</li>
+              <li>ผู้รับจ้างจะต้องเข้ารับพัสดุและสินค้า Drop-Off จากร้านค้าหรือผู้ส่ง ณ สถานที่ที่กำหนดและนำมาส่ง ณ ศูนย์จัดการสินค้าให้ทันตามเวลา</li>
+              <li>ผู้รับจ้างจะต้องปฏิบัติงานในวันและเวลาที่ผู้ว่าจ้างกำหนด</li>
+              <li>ผู้รับจ้างจะต้องตรวจสอบและนับจำนวนและสภาพพัสดุและสินค้าก่อนรับและส่งเพื่อให้ตรงกับเอกสารกำกับ</li>
+              <li>ผู้รับจ้างจะต้องจัดเรียงสินค้าในรถให้ปลอดภัย และไม่ให้เกิดความเสียหาย</li>
+              <li>ผู้รับจ้างจะต้องดูแลเอกสารประกอบการขนส่งให้เรียบร้อยไม่ให้เกิดความเสียหาย</li>
+              <li>ในกรณีที่พัสดุหรือสินค้ามีขนาดใหญ่หรือน้ำหนักมาก ผู้รับจ้างจะต้องใช้ความระมัดระวังในการจัดส่งหรือรับสินค้าและจะต้องมีเครื่องมือช่วยเพื่อไม่ให้เกิดความเสียหายจากการจัดส่งหรือรับสินค้า</li>
+              <li>ผู้รับจ้างจะต้องดูแลรักษาความสะอาดของรถยนต์ที่ใช้อยู่เสมอและบำรุงรักษาให้อยู่ในสภาพที่ดี</li>
+              <li>ผู้รับจ้างจะต้องทำเอกสารหรือหลักฐานในการรับส่งสินค้าตามที่กำหนด</li>
+              <li>ในกรณีที่ผู้รับจ้างไม่สามารถปฏิบัติงานในวันใดได้ ผู้รับจ้างจะต้องแจ้งให้ผู้ว่าจ้างทราบล่วงหน้าโดยพลัน และจัดหาผู้ปฏิบัติงานอื่นมาดำเนินการแทนด้วยค่าใช้จ่ายของผู้รับจ้าง</li>
+              <li>ในกรณีที่ประสบปัญหาเกี่ยวกับการจัดส่งพัสดุหรือสินค้าหรือประสบอุบัติเหตุระหว่างการปฏิบัติงาน ผู้รับจ้างจะต้องแจ้งให้ผู้ว่าจ้างหรือศูนย์ประสานทราบทันที</li>
+              <li>ผู้รับจ้างจะต้องสวมใส่เครื่องแบบตามที่ผู้ว่าจ้างกำหนด</li>
+              <li>ผู้รับจ้างจะต้องเข้ารับการอบรมตามที่ผู้ว่าจ้างหรือบริษัทคู่ค้ากำหนดอย่างเคร่งครัด</li>
+              <li>ผู้รับจ้างต้องแนบสำเนาเอกสารประกันภัยรถยนต์ประเภทที่ 1, 2 และ 3 ประกอบกับสัญญาจ้างฉบับนี้ด้วย</li>
+            </ol>
+
+            <div class="sign-area">
+              <div class="sign-block" style="margin-left: auto;">
+                <div class="sign-slot">
+                  <img class="sign-img bind-sig" src="" alt="ลายเซ็น">
+                  <span class="sign-line">......................................................</span>
+                </div>
+                <p class="sign-caption">ผู้รับจ้าง ( <span data-bind="signName"></span> )<br>วันที่ <span class="fill-data" data-bind="day"></span> เดือน <span class="fill-data" data-bind="month"></span> พ.ศ. <span class="fill-data" data-bind="year"></span></p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="pdf-page page-break doc-group-p4" id="doc-page-4">
+          <div class="doc-header">
+            <img class="company-logo bind-logo" src="hetai-logo.png" alt="โลโก้บริษัท เหอไท่">
+            <div>
+              <div class="doc-title">เอกสารแนบท้าย 2</div>
+              <div class="doc-subtitle">แบบหนังสือให้ความยินยอมเกี่ยวกับข้อมูลส่วนบุคคล</div>
+            </div>
+          </div>
+
+          <div class="contract-body">
+            <div class="clause-title" style="margin-top: 0;">หนังสือให้ความยินยอม สำหรับการเก็บรวบรวม ใช้ และเปิดเผยข้อมูลส่วนบุคคล</div>
+            <p>โดยการลงลายมือชื่อในเอกสารฉบับนี้ ข้าพเจ้า <span class="fill-data" data-bind="fullName"></span> ในฐานะเจ้าของข้อมูลส่วนบุคคล ตกลงยินยอมให้ บริษัท เหอไท่ เน็ตเวิร์ค เทคโนโลยี จำกัด และบริษัทในเครือ (“บริษัทฯ”) ดำเนินการดังต่อไปนี้</p>
+            <ul>
+              <li>เก็บรวบรวม ใช้ และเปิดเผยข้อมูลส่วนบุคคลที่มีความอ่อนไหวดังต่อไปนี้ของข้าพเจ้า เพื่อวัตถุประสงค์ต่างๆ ที่เกี่ยวข้องกับการสัญญาจ้างทำของและการให้บริการภายใต้สัญญาอื่นๆ ที่เกี่ยวข้อง ตลอดจนเพื่อดำเนินการอื่นๆ ที่จำเป็นหรือเกี่ยวเนื่องกับวัตถุประสงค์ดังกล่าว
+                <ul>
+                  <li>ข้อมูลศาสนา และ/หรือหมู่โลหิต ที่ปรากฏอยู่บนบัตรประจำตัวประชาชน</li>
+                  <li>ข้อมูลสุขภาพ</li>
+                  <li>ประวัติอาชญากรรมที่ปรากฏอยู่ในผลตรวจประวัติบุคคล</li>
+                  <li>ข้อมูลชีวภาพ เช่น ลายนิ้วมือ ฝ่ามือ และภาพสแกนใบหน้า</li>
+                  <li>ข้อมูลเกี่ยวกับตำแหน่งทางภูมิศาสตร์ของรถยนต์ที่ใช้ในการขนส่งหรือดำเนินงานบริการภายใต้สัญญาจ้าง</li>
+                </ul>
+              </li>
+              <li>เก็บรวบรวม ใช้ และเปิดเผยข้อมูลส่วนบุคคลที่มีความอ่อนไหวดังต่อไปนี้ของข้าพเจ้า เพื่อวัตถุประสงค์ต่างๆ ที่เกี่ยวข้องกับการปฏิบัติการต่างๆ ให้เป็นไปตามสัญญาจ้าง และรวมถึงการตรวจสอบผู้รับจ้าง เช่น การตรวจสารเสพติด ตลอดจนเพื่อดำเนินการอื่นๆ ที่จำเป็นหรือเกี่ยวเนื่องกับวัตถุประสงค์ดังกล่าว
+                <ul>
+                  <li>ข้อมูลสุขภาพ ผลการตรวจสุขภาพ ผลการตรวจสารเสพติด และ/หรือเอกสารอื่นๆ</li>
+                </ul>
+              </li>
+            </ul>
+            <p>ทั้งนี้ ข้าพเจ้าได้อ่านและรับทราบสิทธิในฐานะเจ้าของข้อมูลส่วนบุคคลตามที่ระบุไว้ในประกาศเกี่ยวกับการคุ้มครองข้อมูลส่วนบุคคลของบริษัทฯ เรียบร้อยแล้ว</p>
+
+            <div class="sign-area">
+              <div class="sign-block" style="margin-left: auto;">
+                <div class="sign-slot">
+                  <img class="sign-img bind-sig" src="" alt="ลายเซ็น">
+                  <span class="sign-line">......................................................</span>
+                </div>
+                <p class="sign-caption">ผู้รับจ้าง ( <span data-bind="signName"></span> )<br>วันที่ <span class="fill-data" data-bind="day"></span> เดือน <span class="fill-data" data-bind="month"></span> พ.ศ. <span class="fill-data" data-bind="year"></span></p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <button type="button" id="pdf-btn" class="btn btn-success" onclick="submitAndExportPDF()">บันทึกข้อมูลเข้าระบบ และเซฟเป็น PDF (ใบสมัคร + เอกสารแนบ + สัญญาจ้าง)</button>
+    <button type="button" class="btn btn-secondary" style="width: 100%; margin-top: 8px;" onclick="backToForm()">กลับไปแก้ไขข้อมูล</button>
+  </div>
+
+  <!-- ================= โหมดเจ้าหน้าที่ ================= -->
+  <div id="admin-section">
+    <h2>ระบบตรวจสอบข้อมูลผู้สมัครและสัญญาจ้าง (สำหรับเจ้าหน้าที่)</h2>
+    <div class="admin-filters">
+      <input type="text" id="admin-search" placeholder="ค้นหา รหัสพนักงาน, ชื่อ, เลขบัตร, เบอร์โทร, Hub..." oninput="filterAdminTable()">
+      <button type="button" class="btn btn-primary" style="width: auto; margin: 0;" onclick="loadApplicants()">รีเฟรชข้อมูล</button>
+    </div>
+    <div class="admin-table-wrap">
+      <table class="admin-table">
+        <thead>
+          <tr>
+            <th>วันที่สมัคร</th>
+            <th>รหัสพนักงาน</th>
+            <th>ชื่อ-นามสกุล</th>
+            <th>เบอร์โทร</th>
+            <th>ที่อยู่ปัจจุบัน</th>
+            <th>ที่อยู่ตามทะเบียนบ้าน</th>
+            <th>ประเภทรถ</th>
+            <th>Hub</th>
+            <th>ธนาคาร / ชื่อบัญชี / เลขบัญชี</th>
+            <th>ติดต่อฉุกเฉิน</th>
+            <th>เอกสาร PDF</th>
+          </tr>
+        </thead>
+        <tbody id="admin-tbody">
+          <tr><td colspan="11" style="text-align:center;">กำลังโหลดข้อมูล...</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<script>
+  const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxRoZQPoP9H6q5bZ5yRBUsFB0PVMVE2bzCtUKFOviX40UKBSqPIzP4HfSSoiS7VxKoM/exec';
+  const ADMIN_PIN = 'Admin1234';
+
+  const canvas = document.getElementById('signature-pad');
+  const signaturePad = new SignaturePad(canvas, { penColor: 'rgb(0, 0, 128)' });
+  let isAdminAuthenticated = false;
+  let allApplicants = [];
+
+  function resizeCanvas() {
+    const ratio = Math.max(window.devicePixelRatio || 1, 1);
+    canvas.width = canvas.offsetWidth * ratio;
+    canvas.height = canvas.offsetHeight * ratio;
+    canvas.getContext("2d").scale(ratio, ratio);
+    signaturePad.clear();
   }
-  return sheet;
-}
+  window.addEventListener("resize", resizeCanvas);
+  resizeCanvas();
+
+  const now = new Date();
+  const thaiMonthsInit = [
+    'มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน', 'พฤษภาคม', 'มิถุนายน',
+    'กรกฎาคม', 'สิงหาคม', 'กันยายน', 'ตุลาคม', 'พฤศจิกายน', 'ธันวาคม'
+  ];
+  document.getElementById('effectiveDate').value = `${now.getDate()} ${thaiMonthsInit[now.getMonth()]} ${now.getFullYear() + 543}`;
+
+  function copyCurrentAddress() {
+    document.getElementById('registeredAddress').value = document.getElementById('address').value;
+  }
+
+  function previewApplicantPhoto(input) {
+    const imgEl = document.getElementById('doc-applicant-photo');
+    const emptyEl = document.getElementById('doc-applicant-photo-empty');
+    if (input.files && input.files[0]) {
+      const reader = new FileReader();
+      reader.onload = e => {
+        imgEl.src = e.target.result;
+        imgEl.style.display = 'block';
+        if (emptyEl) emptyEl.style.display = 'none';
+      };
+      reader.readAsDataURL(input.files[0]);
+    } else {
+      imgEl.src = '';
+      imgEl.style.display = 'none';
+      if (emptyEl) emptyEl.style.display = 'block';
+    }
+  }
+
+  function updateLivePreview() {
+    const d = new Date();
+    const liveData = {
+      day: String(d.getDate()),
+      month: thaiMonthsInit[d.getMonth()],
+      year: String(d.getFullYear() + 543),
+      fullName: document.getElementById('fullName').value.trim() || '.........................',
+      age: document.getElementById('age').value.trim() || '........',
+      address: document.getElementById('address').value.trim() || '..........................................................................................',
+      idCard: document.getElementById('idCard').value.trim() || '.......................................',
+      position: document.getElementById('position').value,
+      rate: document.getElementById('rate').value.trim() || '8 บาทต่อชิ้น',
+      effectiveDate: document.getElementById('effectiveDate').value.trim() || '………………………………………'
+    };
+
+    document.querySelectorAll('[data-live]').forEach(el => {
+      const key = el.getAttribute('data-live');
+      if (liveData[key] !== undefined) el.innerText = liveData[key];
+    });
+  }
+  updateLivePreview();
+
+  function checkConsent() {
+    const c1 = document.getElementById('chk-contract').checked;
+    const c2 = document.getElementById('chk-pdpa').checked;
+    const lockMsg = document.getElementById('sig-lock-msg');
+    const buildBtn = document.getElementById('build-btn');
+
+    if (c1 && c2) {
+      lockMsg.style.display = 'none';
+      buildBtn.disabled = false;
+    } else {
+      lockMsg.style.display = 'flex';
+      buildBtn.disabled = true;
+    }
+  }
+
+  let accountNameEdited = false;
+  document.getElementById('bankAccountName').addEventListener('input', () => { accountNameEdited = true; });
+  function syncAccountName() {
+    if (!accountNameEdited) {
+      document.getElementById('bankAccountName').value = document.getElementById('fullName').value;
+    }
+  }
+
+  function clearSignature() {
+    signaturePad.clear();
+  }
+
+  function updateRate() {
+    const pos = document.getElementById('position').value;
+    const rateEl = document.getElementById('rate');
+    if (pos.includes('Biker')) rateEl.value = '8 บาทต่อชิ้น';
+    else if (pos.includes('กรุงเทพและสมุทรปราการ')) rateEl.value = '13 บาทต่อชิ้น';
+    else if (pos.includes('ปทุมธานี')) rateEl.value = '12 บาทต่อชิ้น';
+    else if (pos.includes('รถยนต์ (4W Driver)')) rateEl.value = '13 บาทต่อชิ้น';
+  }
+
+  function previewImage(input, imgId, emptyId) {
+    const imgEl = document.getElementById(imgId);
+    const emptyEl = document.getElementById(emptyId);
+    if (input.files && input.files[0]) {
+      const reader = new FileReader();
+      reader.onload = e => {
+        imgEl.src = e.target.result;
+        imgEl.style.display = 'block';
+        if (emptyEl) emptyEl.style.display = 'none';
+      };
+      reader.readAsDataURL(input.files[0]);
+    } else {
+      imgEl.src = '';
+      imgEl.style.display = 'none';
+      if (emptyEl) emptyEl.style.display = 'block';
+    }
+  }
+
+  function switchDocView(mode) {
+    const groups = {
+      p1: document.querySelectorAll('.doc-group-p1'),
+      docs: document.querySelectorAll('.doc-group-docs'),
+      p2: document.querySelectorAll('.doc-group-p2'),
+      p3: document.querySelectorAll('.doc-group-p3'),
+      p4: document.querySelectorAll('.doc-group-p4')
+    };
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+
+    if (mode === 'all') {
+      Object.values(groups).forEach(list => list.forEach(el => el.style.display = 'block'));
+      document.getElementById('tab-all').classList.add('active');
+    } else {
+      Object.entries(groups).forEach(([key, list]) => {
+        list.forEach(el => el.style.display = (key === mode) ? 'block' : 'none');
+      });
+      document.getElementById(`tab-${mode}`).classList.add('active');
+    }
+  }
+
+  function buildDocuments() {
+    if (!document.getElementById('chk-contract').checked || !document.getElementById('chk-pdpa').checked) {
+      alert('กรุณาอ่านและติ๊กยอมรับสัญญาจ้างขนส่งและหนังสือยินยอม PDPA ก่อนครับ');
+      return;
+    }
+
+    const d = new Date();
+    const dayStr = String(d.getDate());
+    const monthStr = thaiMonthsInit[d.getMonth()];
+    const yearStr = String(d.getFullYear() + 543);
+
+    const values = {
+      day: dayStr,
+      month: monthStr,
+      year: yearStr,
+      fullDate: `${dayStr} ${monthStr} พ.ศ. ${yearStr}`,
+      employeeCode: document.getElementById('employeeCode').value.trim() || '-',
+      fullName: document.getElementById('fullName').value.trim(),
+      age: document.getElementById('age').value.trim(),
+      idCard: document.getElementById('idCard').value.trim(),
+      phone: document.getElementById('phone').value.trim(),
+      address: document.getElementById('address').value.trim(),
+      registeredAddress: document.getElementById('registeredAddress').value.trim(),
+      emerName: document.getElementById('emerName').value.trim(),
+      emerRelation: document.getElementById('emerRelation').value.trim(),
+      emerPhone: document.getElementById('emerPhone').value.trim(),
+      position: document.getElementById('position').value,
+      rate: document.getElementById('rate').value.trim(),
+      plateNumber: document.getElementById('plateNumber').value.trim() || '-',
+      hubLocation: document.getElementById('hubLocation').value.trim(),
+      effectiveDate: document.getElementById('effectiveDate').value.trim(),
+      bankName: document.getElementById('bankName').value.trim(),
+      bankAccountName: document.getElementById('bankAccountName').value.trim(),
+      bankAccount: document.getElementById('bankAccount').value.trim()
+    };
+    values.signName = values.fullName;
+
+    if (
+      !values.fullName || !values.age || !values.idCard || !values.phone ||
+      !values.address || !values.registeredAddress ||
+      !values.emerName || !values.emerRelation || !values.emerPhone ||
+      !values.hubLocation || !values.effectiveDate || !values.bankName || !values.bankAccountName || !values.bankAccount
+    ) {
+      alert('กรุณากรอกข้อมูลที่มีเครื่องหมาย * ให้ครบถ้วนครับ');
+      return;
+    }
+    if (signaturePad.isEmpty()) {
+      alert('กรุณาลงลายมือชื่อก่อนสร้างเอกสารครับ');
+      return;
+    }
+
+    document.querySelectorAll('[data-bind]').forEach(el => {
+      const key = el.getAttribute('data-bind');
+      if (values[key] !== undefined) el.innerText = values[key];
+    });
+
+    const sigData = signaturePad.toDataURL();
+    document.querySelectorAll('.bind-sig').forEach(img => img.src = sigData);
+
+    switchDocView('all');
+    document.getElementById('form-section').style.display = 'none';
+    document.getElementById('preview-section').style.display = 'block';
+    window.scrollTo(0, 0);
+  }
+
+  function backToForm() {
+    document.getElementById('preview-section').style.display = 'none';
+    document.getElementById('form-section').style.display = 'block';
+  }
+
+  async function submitAndExportPDF() {
+    switchDocView('all');
+    if (document.fonts && document.fonts.ready) {
+      await document.fonts.ready;
+    }
+
+    const loader = document.getElementById('loading-overlay');
+    const btn = document.getElementById('pdf-btn');
+    loader.style.display = 'flex';
+    btn.disabled = true;
+
+    const name = document.getElementById('fullName').value.trim();
+    const element = document.getElementById('pdf-content');
+
+    const opt = {
+      margin: [8, 8, 8, 8],
+      filename: `ใบสมัครและสัญญาจ้างขนส่ง_${name}.pdf`,
+      image: { type: 'jpeg', quality: 0.75 },
+      html2canvas: { scale: 1.25, useCORS: true, scrollY: 0 },
+      jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+      pagebreak: { mode: ['css', 'legacy'], before: '.page-break', avoid: '.avoid-break' }
+    };
+
+    try {
+      const pdfBase64 = await html2pdf().set(opt).from(element).outputPdf('datauristring');
+
+      const payload = {
+        employeeCode: document.getElementById('employeeCode').value.trim() || '-',
+        fullName: name,
+        age: document.getElementById('age').value.trim(),
+        idCard: document.getElementById('idCard').value.trim(),
+        phone: document.getElementById('phone').value.trim(),
+        address: document.getElementById('address').value.trim(),
+        registeredAddress: document.getElementById('registeredAddress').value.trim(),
+        emerName: document.getElementById('emerName').value.trim(),
+        emerRelation: document.getElementById('emerRelation').value.trim(),
+        emerPhone: document.getElementById('emerPhone').value.trim(),
+        position: document.getElementById('position').value,
+        rate: document.getElementById('rate').value.trim(),
+        plateNumber: document.getElementById('plateNumber').value.trim() || '-',
+        hubLocation: document.getElementById('hubLocation').value.trim(),
+        bankName: document.getElementById('bankName').value.trim(),
+        bankAccountName: document.getElementById('bankAccountName').value.trim(),
+        bankAccount: document.getElementById('bankAccount').value.trim(),
+        pdfBase64: pdfBase64
+      };
+
+      const response = await fetch(SCRIPT_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify(payload)
+      });
+
+      const result = await response.json();
+      if (result.status !== 'success') {
+        throw new Error(result.message || 'บันทึกข้อมูลไม่สำเร็จ');
+      }
+
+      loader.style.display = 'none';
+      alert('บันทึกข้อมูลลงระบบเรียบร้อยแล้ว ระบบจะเปิดหน้าต่างสำหรับเซฟ/พิมพ์ไฟล์ PDF (เอกสารประกอบแยกหน้าละแผ่น)');
+      window.print();
+    } catch (err) {
+      alert('ซิงค์ข้อมูลไม่สำเร็จ: ' + err.message);
+    } finally {
+      loader.style.display = 'none';
+      btn.disabled = false;
+    }
+  }
+
+  function toggleAdminMode() {
+    const adminSec = document.getElementById('admin-section');
+    const formSec = document.getElementById('form-section');
+    const prevSec = document.getElementById('preview-section');
+    const btn = document.getElementById('toggle-mode-btn');
+
+    if (adminSec.style.display === 'block') {
+      adminSec.style.display = 'none';
+      formSec.style.display = 'block';
+      btn.innerText = 'โหมดเจ้าหน้าที่ (ดูข้อมูลผู้สมัคร)';
+      return;
+    }
+
+    if (!isAdminAuthenticated) {
+      const pin = prompt('กรุณากรอกรหัสผ่านสำหรับเจ้าหน้าที่:');
+      if (pin !== ADMIN_PIN) {
+        alert('รหัสผ่านไม่ถูกต้องครับ');
+        return;
+      }
+      isAdminAuthenticated = true;
+    }
+
+    formSec.style.display = 'none';
+    prevSec.style.display = 'none';
+    adminSec.style.display = 'block';
+    btn.innerText = 'กลับหน้าแบบฟอร์มสมัครงาน';
+    loadApplicants();
+  }
+
+  async function loadApplicants() {
+    const tbody = document.getElementById('admin-tbody');
+    tbody.innerHTML = '<tr><td colspan="11" style="text-align:center;">กำลังดึงข้อมูลจาก Google Sheets...</td></tr>';
+    try {
+      const res = await fetch(SCRIPT_URL);
+      const json = await res.json();
+      if (json.status === 'success') {
+        allApplicants = json.data;
+        renderAdminTable(allApplicants);
+      } else {
+        tbody.innerHTML = `<tr><td colspan="11" style="text-align:center; color:#dc2626;">เกิดข้อผิดพลาด: ${json.message}</td></tr>`;
+      }
+    } catch (e) {
+      tbody.innerHTML = `<tr><td colspan="11" style="text-align:center; color:#dc2626;">ไม่สามารถเชื่อมต่อข้อมูลได้: ${e.message}</td></tr>`;
+    }
+  }
+
+  function renderAdminTable(data) {
+    const tbody = document.getElementById('admin-tbody');
+    if (!data.length) {
+      tbody.innerHTML = '<tr><td colspan="11" style="text-align:center;">ยังไม่มีข้อมูลผู้สมัครในระบบ</td></tr>';
+      return;
+    }
+    tbody.innerHTML = data.map(item => `
+      <tr>
+        <td>${item.timestamp}</td>
+        <td><strong>${item.employeeCode || '-'}</strong></td>
+        <td><strong>${item.fullName}</strong><br><small>บัตรฯ: ${item.idCard}</small></td>
+        <td>${item.phone}</td>
+        <td>${item.address || '-'}</td>
+        <td>${item.registeredAddress || '-'}</td>
+        <td>${item.position}<br><small>ทะเบียน: ${item.plateNumber}</small></td>
+        <td>${item.hubLocation}</td>
+        <td>${item.bankName}<br><small>ชื่อบัญชี: ${item.bankAccountName} | เลข: ${item.bankAccount}</small></td>
+        <td>${item.emerName} (${item.emerRelation})<br><small>โทร: ${item.emerPhone}</small></td>
+        <td><a href="${item.pdfUrl}" target="_blank" class="btn-pdf-link">เปิดดู PDF</a></td>
+      </tr>
+    `).join('');
+  }
+
+  function filterAdminTable() {
+    const q = document.getElementById('admin-search').value.toLowerCase();
+    const filtered = allApplicants.filter(item =>
+      (item.employeeCode || '').toLowerCase().includes(q) ||
+      (item.fullName || '').toLowerCase().includes(q) ||
+      (item.idCard || '').toLowerCase().includes(q) ||
+      (item.phone || '').toLowerCase().includes(q) ||
+      (item.hubLocation || '').toLowerCase().includes(q)
+    );
+    renderAdminTable(filtered);
+  }
+</script>
+
+</body>
+</html>
