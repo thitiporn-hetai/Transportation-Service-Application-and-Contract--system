@@ -10,8 +10,9 @@
     * { box-sizing: border-box; font-family: 'Noto Sans Thai', 'Sarabun', sans-serif; }
     body { background: #f3f4f6; margin: 0; padding: 15px; color: #1f2937; }
     .container { max-width: 980px; margin: 0 auto; background: #fff; padding: 25px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
-    .top-bar { display: flex; justify-content: flex-end; margin-bottom: 10px; gap: 8px; }
+    .top-bar { display: flex; justify-content: flex-end; margin-bottom: 14px; gap: 8px; flex-wrap: wrap; }
     .btn-mode { background: #111827; color: #fff; border: none; border-radius: 6px; padding: 8px 14px; font-size: 13px; font-weight: 600; cursor: pointer; }
+    .btn-mode:hover { background: #374151; }
     h2 { text-align: center; color: #111827; margin-top: 0; border-bottom: 2px solid #2563eb; padding-bottom: 10px; }
     .section-title { font-weight: 700; color: #2563eb; margin: 20px 0 10px; font-size: 16px; border-left: 4px solid #2563eb; padding-left: 8px; }
     .form-group { margin-bottom: 14px; }
@@ -133,8 +134,8 @@
 
 <div class="container">
   <div class="top-bar">
-    <button type="button" class="btn-mode" onclick="showAdminMode()">โหมดเจ้าหน้าที่ (ดาวน์โหลด PDF รายบุคคล)</button>
-    <button type="button" class="btn-mode" onclick="showFormMode()">หน้าแบบฟอร์มสมัครงาน</button>
+    <button type="button" class="btn-mode" id="btn-to-admin" onclick="showAdminMode()">โหมดเจ้าหน้าที่ (ดาวน์โหลด PDF รายบุคคล)</button>
+    <button type="button" class="btn-mode" id="btn-to-form" onclick="showFormMode()">หน้าแบบฟอร์มสมัครงาน</button>
   </div>
 
   <!-- ================= โหมดเจ้าหน้าที่ ================= -->
@@ -193,7 +194,7 @@
       </div>
       <div class="form-group">
         <label>รูปถ่ายผู้สมัคร (แสดงมุมขวาบนของใบสมัคร)</label>
-        <input type="file" accept="image/*" onchange="previewApplicantPhoto(this)">
+        <input type="file" id="photoInput" accept="image/*" onchange="previewApplicantPhoto(this)">
       </div>
     </div>
     <div class="row">
@@ -478,7 +479,7 @@
           <div class="sign-area">
             <div class="sign-block" style="margin-left: auto;">
               <div class="sign-slot">
-                <img class="sign-img bind-sig" src="" alt="ลายเซ็น">
+                <img class="sign-img bind-sig" src="" alt="ลายเซ็น" style="display:none;">
                 <span class="sign-line">......................................................</span>
               </div>
               <p class="sign-caption">( <span data-bind="signName"></span> )<br>ผู้สมัครงาน</p>
@@ -609,7 +610,7 @@
                 </div>
                 <div class="sign-block">
                   <div class="sign-slot">
-                    <img class="sign-img bind-sig" src="" alt="ลายเซ็น">
+                    <img class="sign-img bind-sig" src="" alt="ลายเซ็น" style="display:none;">
                     <span class="sign-line">......................................................</span>
                   </div>
                   <p class="sign-caption">( <span data-bind="signName"></span> )<br>ผู้รับจ้าง</p>
@@ -651,7 +652,7 @@
             <div class="sign-area">
               <div class="sign-block" style="margin-left: auto;">
                 <div class="sign-slot">
-                  <img class="sign-img bind-sig" src="" alt="ลายเซ็น">
+                  <img class="sign-img bind-sig" src="" alt="ลายเซ็น" style="display:none;">
                   <span class="sign-line">......................................................</span>
                 </div>
                 <p class="sign-caption">ผู้รับจ้าง ( <span data-bind="signName"></span> )<br>วันที่ <span class="fill-data" data-bind="day"></span> เดือน <span class="fill-data" data-bind="month"></span> พ.ศ. <span class="fill-data" data-bind="year"></span></p>
@@ -693,7 +694,7 @@
             <div class="sign-area">
               <div class="sign-block" style="margin-left: auto;">
                 <div class="sign-slot">
-                  <img class="sign-img bind-sig" src="" alt="ลายเซ็น">
+                  <img class="sign-img bind-sig" src="" alt="ลายเซ็น" style="display:none;">
                   <span class="sign-line">......................................................</span>
                 </div>
                 <p class="sign-caption">ผู้รับจ้าง ( <span data-bind="signName"></span> )<br>วันที่ <span class="fill-data" data-bind="day"></span> เดือน <span class="fill-data" data-bind="month"></span> พ.ศ. <span class="fill-data" data-bind="year"></span></p>
@@ -712,6 +713,8 @@
 <script>
   const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxRoZQPoP9H6q5bZ5yRBUsFB0PVMVE2bzCtUKFOviX40UKBSqPIzP4HfSSoiS7VxKoM/exec';
   let adminRecords = [];
+  let applicantPhotoBase64 = '';
+  const attachedDocsBase64 = { id: '', license: '', house: '', bank: '' };
 
   const canvas = document.getElementById('signature-pad');
   const signaturePad = new SignaturePad(canvas, { penColor: 'rgb(0, 0, 128)' });
@@ -732,6 +735,47 @@
     'กรกฎาคม', 'สิงหาคม', 'กันยายน', 'ตุลาคม', 'พฤศจิกายน', 'ธันวาคม'
   ];
   document.getElementById('effectiveDate').value = `${now.getDate()} ${thaiMonthsInit[now.getMonth()]} ${now.getFullYear() + 543}`;
+
+  function cleanText(val, fallback = '') {
+    if (val === undefined || val === null) return fallback;
+    const str = String(val).trim();
+    if (!str) return fallback;
+    if (/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/.test(str)) {
+      const dt = new Date(str);
+      if (!isNaN(dt.getTime())) {
+        return `${dt.getDate()} ${thaiMonthsInit[dt.getMonth()]} ${dt.getFullYear() + 543}`;
+      }
+    }
+    return str;
+  }
+
+  function applyImageOrEmpty(imgEl, emptyEl, src) {
+    const cleanSrc = cleanText(src, '');
+    if (imgEl) {
+      if (cleanSrc) {
+        imgEl.src = cleanSrc;
+        imgEl.style.display = 'block';
+        if (emptyEl) emptyEl.style.display = 'none';
+      } else {
+        imgEl.removeAttribute('src');
+        imgEl.style.display = 'none';
+        if (emptyEl) emptyEl.style.display = 'block';
+      }
+    }
+  }
+
+  function applySignatures(sigSrc) {
+    const cleanSig = cleanText(sigSrc, '');
+    document.querySelectorAll('.bind-sig').forEach(img => {
+      if (cleanSig) {
+        img.src = cleanSig;
+        img.style.display = 'block';
+      } else {
+        img.removeAttribute('src');
+        img.style.display = 'none';
+      }
+    });
+  }
 
   function showFormMode() {
     document.getElementById('admin-section').style.display = 'none';
@@ -777,11 +821,11 @@
     }
     tbody.innerHTML = rows.map((item, idx) => `
       <tr>
-        <td><strong>${escapeHtml(item.employeeCode || '-')}</strong></td>
-        <td>${escapeHtml(item.fullName || '-')}</td>
-        <td>${escapeHtml(item.phone || '-')}</td>
-        <td>${escapeHtml(item.position || '-')}<br><small>Hub: ${escapeHtml(item.hubLocation || '-')}</small></td>
-        <td>${escapeHtml(item.bankName || '-')}<br><small>${escapeHtml(item.bankAccountName || '')} | ${escapeHtml(item.bankAccount || '')}</small></td>
+        <td><strong>${escapeHtml(cleanText(item.employeeCode, '-'))}</strong></td>
+        <td>${escapeHtml(cleanText(item.fullName, '-'))}</td>
+        <td>${escapeHtml(cleanText(item.phone, '-'))}</td>
+        <td>${escapeHtml(cleanText(item.position, '-'))}<br><small>Hub: ${escapeHtml(cleanText(item.hubLocation, '-'))}</small></td>
+        <td>${escapeHtml(cleanText(item.bankName, '-'))}<br><small>${escapeHtml(cleanText(item.bankAccountName, ''))} | ${escapeHtml(cleanText(item.bankAccount, ''))}</small></td>
         <td><button type="button" class="btn-open-doc" onclick="openRecordDocument(${idx})">เปิดเอกสาร / เซฟ PDF</button></td>
       </tr>
     `).join('');
@@ -811,25 +855,25 @@
       month: monthStr,
       year: yearStr,
       fullDate: `${dayStr} ${monthStr} พ.ศ. ${yearStr}`,
-      employeeCode: item.employeeCode || '-',
-      fullName: item.fullName || '',
-      age: item.age || '',
-      idCard: item.idCard || '',
-      phone: item.phone || '',
-      address: item.address || '',
-      registeredAddress: item.registeredAddress || item.address || '',
-      emerName: item.emerName || '',
-      emerRelation: item.emerRelation || '',
-      emerPhone: item.emerPhone || '',
-      position: item.position || '',
-      rate: item.rate || '',
-      plateNumber: item.plateNumber || '-',
-      hubLocation: item.hubLocation || '',
-      effectiveDate: `${dayStr} ${monthStr} ${yearStr}`,
-      bankName: item.bankName || '',
-      bankAccountName: item.bankAccountName || '',
-      bankAccount: item.bankAccount || '',
-      signName: item.fullName || ''
+      employeeCode: cleanText(item.employeeCode, '-'),
+      fullName: cleanText(item.fullName, ''),
+      age: cleanText(item.age, ''),
+      idCard: cleanText(item.idCard, ''),
+      phone: cleanText(item.phone, ''),
+      address: cleanText(item.address, ''),
+      registeredAddress: cleanText(item.registeredAddress, cleanText(item.address, '')),
+      emerName: cleanText(item.emerName, ''),
+      emerRelation: cleanText(item.emerRelation, ''),
+      emerPhone: cleanText(item.emerPhone, ''),
+      position: cleanText(item.position, ''),
+      rate: cleanText(item.rate, ''),
+      plateNumber: cleanText(item.plateNumber, '-'),
+      hubLocation: cleanText(item.hubLocation, ''),
+      effectiveDate: cleanText(item.effectiveDate, `${dayStr} ${monthStr} ${yearStr}`),
+      bankName: cleanText(item.bankName, ''),
+      bankAccountName: cleanText(item.bankAccountName, ''),
+      bankAccount: cleanText(item.bankAccount, ''),
+      signName: cleanText(item.fullName, '')
     };
 
     document.querySelectorAll('[data-bind]').forEach(el => {
@@ -837,7 +881,35 @@
       if (values[key] !== undefined) el.innerText = values[key];
     });
 
-    document.querySelectorAll('.bind-sig').forEach(img => { img.src = ''; });
+    applyImageOrEmpty(
+      document.getElementById('doc-applicant-photo'),
+      document.getElementById('doc-applicant-photo-empty'),
+      item.photoBase64 || item.photoUrl || item.photo || ''
+    );
+
+    applySignatures(item.signatureBase64 || item.signatureUrl || item.signature || '');
+
+    applyImageOrEmpty(
+      document.getElementById('img-id'),
+      document.getElementById('empty-id'),
+      item.docIdBase64 || item.docIdUrl || item.idCardImg || ''
+    );
+    applyImageOrEmpty(
+      document.getElementById('img-license'),
+      document.getElementById('empty-license'),
+      item.docLicenseBase64 || item.docLicenseUrl || item.licenseImg || ''
+    );
+    applyImageOrEmpty(
+      document.getElementById('img-house'),
+      document.getElementById('empty-house'),
+      item.docHouseBase64 || item.docHouseUrl || item.houseImg || ''
+    );
+    applyImageOrEmpty(
+      document.getElementById('img-bank'),
+      document.getElementById('empty-bank'),
+      item.docBankBase64 || item.docBankUrl || item.bankImg || ''
+    );
+
     document.getElementById('admin-tbody').dataset.fromAdmin = '1';
     switchDocView('all');
     document.getElementById('admin-section').style.display = 'none';
@@ -860,11 +932,13 @@
     if (input.files && input.files[0]) {
       const reader = new FileReader();
       reader.onload = e => {
-        imgEl.src = e.target.result;
-        imgEl.style.display = 'block';
-        if (emptyEl) emptyEl.style.display = 'none';
+        applicantPhotoBase64 = e.target.result;
+        applyImageOrEmpty(imgEl, emptyEl, applicantPhotoBase64);
       };
       reader.readAsDataURL(input.files[0]);
+    } else {
+      applicantPhotoBase64 = '';
+      applyImageOrEmpty(imgEl, emptyEl, '');
     }
   }
 
@@ -915,16 +989,26 @@
   }
 
   function previewImage(input, imgId, emptyId) {
+    const docKeyMap = {
+      'img-id': 'id',
+      'img-license': 'license',
+      'img-house': 'house',
+      'img-bank': 'bank'
+    };
+    const key = docKeyMap[imgId];
     const imgEl = document.getElementById(imgId);
     const emptyEl = document.getElementById(emptyId);
+
     if (input.files && input.files[0]) {
       const reader = new FileReader();
       reader.onload = e => {
-        imgEl.src = e.target.result;
-        imgEl.style.display = 'block';
-        if (emptyEl) emptyEl.style.display = 'none';
+        if (key) attachedDocsBase64[key] = e.target.result;
+        applyImageOrEmpty(imgEl, emptyEl, e.target.result);
       };
       reader.readAsDataURL(input.files[0]);
+    } else {
+      if (key) attachedDocsBase64[key] = '';
+      applyImageOrEmpty(imgEl, emptyEl, '');
     }
   }
 
@@ -958,6 +1042,7 @@
     const dayStr = String(d.getDate());
     const monthStr = thaiMonthsInit[d.getMonth()];
     const yearStr = String(d.getFullYear() + 543);
+    const sigData = signaturePad.toDataURL();
 
     const values = {
       day: dayStr,
@@ -981,7 +1066,13 @@
       effectiveDate: document.getElementById('effectiveDate').value.trim(),
       bankName: document.getElementById('bankName').value.trim(),
       bankAccountName: document.getElementById('bankAccountName').value.trim(),
-      bankAccount: document.getElementById('bankAccount').value.trim()
+      bankAccount: document.getElementById('bankAccount').value.trim(),
+      photoBase64: applicantPhotoBase64,
+      signatureBase64: sigData,
+      docIdBase64: attachedDocsBase64.id,
+      docLicenseBase64: attachedDocsBase64.license,
+      docHouseBase64: attachedDocsBase64.house,
+      docBankBase64: attachedDocsBase64.bank
     };
     values.signName = values.fullName;
 
@@ -1024,10 +1115,18 @@
       if (values[key] !== undefined) el.innerText = values[key];
     });
 
-    const sigData = signaturePad.toDataURL();
-    document.querySelectorAll('.bind-sig').forEach(img => img.src = sigData);
-    document.getElementById('admin-tbody').dataset.fromAdmin = '0';
+    applyImageOrEmpty(
+      document.getElementById('doc-applicant-photo'),
+      document.getElementById('doc-applicant-photo-empty'),
+      applicantPhotoBase64
+    );
+    applySignatures(sigData);
+    applyImageOrEmpty(document.getElementById('img-id'), document.getElementById('empty-id'), attachedDocsBase64.id);
+    applyImageOrEmpty(document.getElementById('img-license'), document.getElementById('empty-license'), attachedDocsBase64.license);
+    applyImageOrEmpty(document.getElementById('img-house'), document.getElementById('empty-house'), attachedDocsBase64.house);
+    applyImageOrEmpty(document.getElementById('img-bank'), document.getElementById('empty-bank'), attachedDocsBase64.bank);
 
+    document.getElementById('admin-tbody').dataset.fromAdmin = '0';
     switchDocView('all');
     document.getElementById('form-section').style.display = 'none';
     document.getElementById('preview-section').style.display = 'block';
