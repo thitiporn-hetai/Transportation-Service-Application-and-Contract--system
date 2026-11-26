@@ -711,8 +711,9 @@
 </div>
 
 <script>
-  const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxRoZQPoP9H6q5bZ5yRBUsFB0PVMVE2bzCtUKFOviX40UKBSqPIzP4HfSSoiS7VxKoM/exec';
+  const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz8o2nvX8FCdGJVfkC6yjyCh3zSXyGyLF_Y0sRXePFbRr4KH-AwetwwfQDEhk0aTHML/exec';
   let adminRecords = [];
+  let filteredRecords = [];
   let applicantPhotoBase64 = '';
   const attachedDocsBase64 = { id: '', license: '', house: '', bank: '' };
 
@@ -749,10 +750,25 @@
     return str;
   }
 
+  function normalizeImageUrl(val) {
+    const str = cleanText(val, '');
+    if (!str) return '';
+    if (str.startsWith('data:image/')) return str;
+    const driveMatch = str.match(/\/d\/([a-zA-Z0-9_-]+)/) || str.match(/[?&]id=([a-zA-Z0-9_-]+)/);
+    if (driveMatch && driveMatch[1]) {
+      return `https://lh3.googleusercontent.com/d/${driveMatch[1]}`;
+    }
+    return str;
+  }
+
   function applyImageOrEmpty(imgEl, emptyEl, src) {
-    const cleanSrc = cleanText(src, '');
+    const cleanSrc = normalizeImageUrl(src);
     if (imgEl) {
       if (cleanSrc) {
+        imgEl.onerror = () => {
+          imgEl.style.display = 'none';
+          if (emptyEl) emptyEl.style.display = 'block';
+        };
         imgEl.src = cleanSrc;
         imgEl.style.display = 'block';
         if (emptyEl) emptyEl.style.display = 'none';
@@ -765,9 +781,10 @@
   }
 
   function applySignatures(sigSrc) {
-    const cleanSig = cleanText(sigSrc, '');
+    const cleanSig = normalizeImageUrl(sigSrc);
     document.querySelectorAll('.bind-sig').forEach(img => {
       if (cleanSig) {
+        img.onerror = () => { img.style.display = 'none'; };
         img.src = cleanSig;
         img.style.display = 'block';
       } else {
@@ -792,7 +809,7 @@
 
   function backFromPreview() {
     document.getElementById('preview-section').style.display = 'none';
-    if (adminRecords.length && document.getElementById('admin-tbody').dataset.fromAdmin === '1') {
+    if (document.getElementById('admin-tbody').dataset.fromAdmin === '1') {
       document.getElementById('admin-section').style.display = 'block';
     } else {
       document.getElementById('form-section').style.display = 'block';
@@ -807,13 +824,15 @@
       const json = await res.json();
       if (json.status !== 'success') throw new Error(json.message || 'โหลดข้อมูลไม่สำเร็จ');
       adminRecords = json.data || [];
-      renderAdminRows(adminRecords);
+      filteredRecords = adminRecords;
+      renderAdminRows(filteredRecords);
     } catch (err) {
       tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:#dc2626; padding:20px;">โหลดข้อมูลไม่สำเร็จ: ${err.message}</td></tr>`;
     }
   }
 
   function renderAdminRows(rows) {
+    filteredRecords = rows;
     const tbody = document.getElementById('admin-tbody');
     if (!rows.length) {
       tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding:20px;">ไม่พบข้อมูลผู้สมัคร</td></tr>';
@@ -842,7 +861,7 @@
   }
 
   function openRecordDocument(index) {
-    const item = adminRecords[index];
+    const item = filteredRecords[index];
     if (!item) return;
 
     const d = new Date();
@@ -884,30 +903,30 @@
     applyImageOrEmpty(
       document.getElementById('doc-applicant-photo'),
       document.getElementById('doc-applicant-photo-empty'),
-      item.photoBase64 || item.photoUrl || item.photo || ''
+      item.photoUrl || item.photoBase64 || item.photo || ''
     );
 
-    applySignatures(item.signatureBase64 || item.signatureUrl || item.signature || '');
+    applySignatures(item.signatureUrl || item.signatureBase64 || item.signature || '');
 
     applyImageOrEmpty(
       document.getElementById('img-id'),
       document.getElementById('empty-id'),
-      item.docIdBase64 || item.docIdUrl || item.idCardImg || ''
+      item.docIdUrl || item.docIdBase64 || item.idCardImg || ''
     );
     applyImageOrEmpty(
       document.getElementById('img-license'),
       document.getElementById('empty-license'),
-      item.docLicenseBase64 || item.docLicenseUrl || item.licenseImg || ''
+      item.docLicenseUrl || item.docLicenseBase64 || item.licenseImg || ''
     );
     applyImageOrEmpty(
       document.getElementById('img-house'),
       document.getElementById('empty-house'),
-      item.docHouseBase64 || item.docHouseUrl || item.houseImg || ''
+      item.docHouseUrl || item.docHouseBase64 || item.houseImg || ''
     );
     applyImageOrEmpty(
       document.getElementById('img-bank'),
       document.getElementById('empty-bank'),
-      item.docBankBase64 || item.docBankUrl || item.bankImg || ''
+      item.docBankUrl || item.docBankBase64 || item.bankImg || ''
     );
 
     document.getElementById('admin-tbody').dataset.fromAdmin = '1';
@@ -926,18 +945,61 @@
     document.getElementById('registeredAddress').value = document.getElementById('address').value;
   }
 
-  function previewApplicantPhoto(input) {
+  function compressImage(file, maxWidth = 1200, quality = 0.8) {
+    return new Promise((resolve) => {
+      const reader = new FileReader();
+      reader.onload = e => {
+        const img = new Image();
+        img.onload = () => {
+          let w = img.width;
+          let h = img.height;
+          if (w > maxWidth) {
+            h = Math.round((h * maxWidth) / w);
+            w = maxWidth;
+          }
+          const c = document.createElement('canvas');
+          c.width = w;
+          c.height = h;
+          const ctx = c.getContext('2d');
+          ctx.drawImage(img, 0, 0, w, h);
+          resolve(c.toDataURL('image/jpeg', quality));
+        };
+        img.onerror = () => resolve(e.target.result);
+        img.src = e.target.result;
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+
+  async function previewApplicantPhoto(input) {
     const imgEl = document.getElementById('doc-applicant-photo');
     const emptyEl = document.getElementById('doc-applicant-photo-empty');
     if (input.files && input.files[0]) {
-      const reader = new FileReader();
-      reader.onload = e => {
-        applicantPhotoBase64 = e.target.result;
-        applyImageOrEmpty(imgEl, emptyEl, applicantPhotoBase64);
-      };
-      reader.readAsDataURL(input.files[0]);
+      applicantPhotoBase64 = await compressImage(input.files[0], 600, 0.85);
+      applyImageOrEmpty(imgEl, emptyEl, applicantPhotoBase64);
     } else {
       applicantPhotoBase64 = '';
+      applyImageOrEmpty(imgEl, emptyEl, '');
+    }
+  }
+
+  async function previewImage(input, imgId, emptyId) {
+    const docKeyMap = {
+      'img-id': 'id',
+      'img-license': 'license',
+      'img-house': 'house',
+      'img-bank': 'bank'
+    };
+    const key = docKeyMap[imgId];
+    const imgEl = document.getElementById(imgId);
+    const emptyEl = document.getElementById(emptyId);
+
+    if (input.files && input.files[0]) {
+      const compressed = await compressImage(input.files[0], 1200, 0.8);
+      if (key) attachedDocsBase64[key] = compressed;
+      applyImageOrEmpty(imgEl, emptyEl, compressed);
+    } else {
+      if (key) attachedDocsBase64[key] = '';
       applyImageOrEmpty(imgEl, emptyEl, '');
     }
   }
@@ -986,30 +1048,6 @@
     if (pos.includes('Biker')) rateEl.value = '8 บาทต่อชิ้น';
     else if (pos.includes('ปทุมธานี')) rateEl.value = '12 บาทต่อชิ้น';
     else rateEl.value = '13 บาทต่อชิ้น';
-  }
-
-  function previewImage(input, imgId, emptyId) {
-    const docKeyMap = {
-      'img-id': 'id',
-      'img-license': 'license',
-      'img-house': 'house',
-      'img-bank': 'bank'
-    };
-    const key = docKeyMap[imgId];
-    const imgEl = document.getElementById(imgId);
-    const emptyEl = document.getElementById(emptyId);
-
-    if (input.files && input.files[0]) {
-      const reader = new FileReader();
-      reader.onload = e => {
-        if (key) attachedDocsBase64[key] = e.target.result;
-        applyImageOrEmpty(imgEl, emptyEl, e.target.result);
-      };
-      reader.readAsDataURL(input.files[0]);
-    } else {
-      if (key) attachedDocsBase64[key] = '';
-      applyImageOrEmpty(imgEl, emptyEl, '');
-    }
   }
 
   function switchDocView(mode) {
@@ -1092,7 +1130,7 @@
 
     const loader = document.getElementById('loading-overlay');
     loader.style.display = 'flex';
-    document.getElementById('loading-text').innerText = 'กำลังบันทึกข้อมูลลง Google Sheets...';
+    document.getElementById('loading-text').innerText = 'กำลังบันทึกข้อมูลและรูปภาพ...';
 
     try {
       const response = await fetch(SCRIPT_URL, {
