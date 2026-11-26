@@ -94,8 +94,8 @@
     .app-table th { background: #f3f4f6; width: 20%; font-weight: 700; color: #111827; }
     .app-table td { width: 30%; }
 
-    .attachment-box { border: 1px solid #9ca3af; border-radius: 6px; padding: 12px; min-height: 185mm; display: flex; flex-direction: column; align-items: center; justify-content: center; background: #fff; }
-    .attachment-img { max-width: 100%; max-height: 170mm; width: auto; height: auto; object-fit: contain; display: block; }
+    .attachment-box { border: 1px solid #9ca3af; border-radius: 6px; padding: 10px; min-height: 150mm; display: flex; flex-direction: column; align-items: center; justify-content: center; background: #fff; }
+    .attachment-img { max-width: 100%; max-height: 138mm; width: auto; height: auto; object-fit: contain; display: block; }
     .attachment-empty { color: #6b7280; font-size: 14px; text-align: center; padding: 40px 10px; line-height: 1.8; }
 
     .contract-body p { margin: 0 0 10px 0; text-align: left; line-height: 1.9; }
@@ -487,6 +487,7 @@
           </div>
         </div>
 
+        <!-- เอกสารประกอบ 1/4: สำเนาบัตรประจำตัวประชาชน -->
         <div class="pdf-page page-break doc-group-docs" id="doc-page-id">
           <div class="doc-header">
             <img class="company-logo bind-logo" src="hetai-logo.png" alt="โลโก้บริษัท เหอไท่">
@@ -499,8 +500,18 @@
             <img id="img-id" class="attachment-img" src="" alt="สำเนาบัตรประจำตัวประชาชน" style="display:none;">
             <div id="empty-id" class="attachment-empty">ไม่ได้แนบไฟล์สำเนาบัตรประจำตัวประชาชน</div>
           </div>
+          <div class="sign-area">
+            <div class="sign-block" style="margin-left: auto;">
+              <div class="sign-slot">
+                <img class="sign-img bind-sig" src="" alt="ลายเซ็น" style="display:none;">
+                <span class="sign-line">......................................................</span>
+              </div>
+              <p class="sign-caption">รับรองสำเนาถูกต้อง ( <span data-bind="signName"></span> )<br>วันที่ <span class="fill-data" data-bind="day"></span> เดือน <span class="fill-data" data-bind="month"></span> พ.ศ. <span class="fill-data" data-bind="year"></span></p>
+            </div>
+          </div>
         </div>
 
+        <!-- เอกสารประกอบ 2/4: สำเนาใบอนุญาตขับขี่ -->
         <div class="pdf-page page-break doc-group-docs" id="doc-page-license">
           <div class="doc-header">
             <img class="company-logo bind-logo" src="hetai-logo.png" alt="โลโก้บริษัท เหอไท่">
@@ -513,8 +524,18 @@
             <img id="img-license" class="attachment-img" src="" alt="สำเนาใบอนุญาตขับขี่" style="display:none;">
             <div id="empty-license" class="attachment-empty">ไม่ได้แนบไฟล์สำเนาใบอนุญาตขับขี่</div>
           </div>
+          <div class="sign-area">
+            <div class="sign-block" style="margin-left: auto;">
+              <div class="sign-slot">
+                <img class="sign-img bind-sig" src="" alt="ลายเซ็น" style="display:none;">
+                <span class="sign-line">......................................................</span>
+              </div>
+              <p class="sign-caption">รับรองสำเนาถูกต้อง ( <span data-bind="signName"></span> )<br>วันที่ <span class="fill-data" data-bind="day"></span> เดือน <span class="fill-data" data-bind="month"></span> พ.ศ. <span class="fill-data" data-bind="year"></span></p>
+            </div>
+          </div>
         </div>
 
+        <!-- เอกสารประกอบ 3/4: สำเนาทะเบียนบ้าน -->
         <div class="pdf-page page-break doc-group-docs" id="doc-page-house">
           <div class="doc-header">
             <img class="company-logo bind-logo" src="hetai-logo.png" alt="โลโก้บริษัท เหอไท่">
@@ -527,8 +548,18 @@
             <img id="img-house" class="attachment-img" src="" alt="สำเนาทะเบียนบ้าน" style="display:none;">
             <div id="empty-house" class="attachment-empty">ไม่ได้แนบไฟล์สำเนาทะเบียนบ้าน</div>
           </div>
+          <div class="sign-area">
+            <div class="sign-block" style="margin-left: auto;">
+              <div class="sign-slot">
+                <img class="sign-img bind-sig" src="" alt="ลายเซ็น" style="display:none;">
+                <span class="sign-line">......................................................</span>
+              </div>
+              <p class="sign-caption">รับรองสำเนาถูกต้อง ( <span data-bind="signName"></span> )<br>วันที่ <span class="fill-data" data-bind="day"></span> เดือน <span class="fill-data" data-bind="month"></span> พ.ศ. <span class="fill-data" data-bind="year"></span></p>
+            </div>
+          </div>
         </div>
 
+        <!-- เอกสารประกอบ 4/4: สำเนาหน้าสมุดบัญชี / เอกสารอื่น -->
         <div class="pdf-page page-break doc-group-docs" id="doc-page-bank">
           <div class="doc-header">
             <img class="company-logo bind-logo" src="hetai-logo.png" alt="โลโก้บริษัท เหอไท่">
@@ -541,8 +572,18 @@
             <img id="img-bank" class="attachment-img" src="" alt="สำเนาหน้าสมุดบัญชี" style="display:none;">
             <div id="empty-bank" class="attachment-empty">ไม่ได้แนบไฟล์สำเนาหน้าสมุดบัญชี / เอกสารอื่น</div>
           </div>
+          <div class="sign-area">
+            <div class="sign-block" style="margin-left: auto;">
+              <div class="sign-slot">
+                <img class="sign-img bind-sig" src="" alt="ลายเซ็น" style="display:none;">
+                <span class="sign-line">......................................................</span>
+              </div>
+              <p class="sign-caption">รับรองสำเนาถูกต้อง ( <span data-bind="signName"></span> )<br>วันที่ <span class="fill-data" data-bind="day"></span> เดือน <span class="fill-data" data-bind="month"></span> พ.ศ. <span class="fill-data" data-bind="year"></span></p>
+            </div>
+          </div>
         </div>
 
+        <!-- สัญญาจ้าง -->
         <div class="pdf-page page-break doc-group-p2" id="doc-page-2">
           <div class="doc-header">
             <img class="company-logo bind-logo" src="hetai-logo.png" alt="โลโก้บริษัท เหอไท่">
@@ -620,6 +661,7 @@
           </div>
         </div>
 
+        <!-- แนบท้าย 1 -->
         <div class="pdf-page page-break doc-group-p3" id="doc-page-3">
           <div class="doc-header">
             <img class="company-logo bind-logo" src="hetai-logo.png" alt="โลโก้บริษัท เหอไท่">
@@ -661,6 +703,7 @@
           </div>
         </div>
 
+        <!-- แนบท้าย 2 (PDPA) -->
         <div class="pdf-page page-break doc-group-p4" id="doc-page-4">
           <div class="doc-header">
             <img class="company-logo bind-logo" src="hetai-logo.png" alt="โลโก้บริษัท เหอไท่">
