@@ -8,7 +8,7 @@
   <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.1.7/dist/signature_pad.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
   <style>
-    * { box-sizing: border-box; font-family: 'Sarabun', sans-serif; }
+    * { box-sizing: border-box; font-family: 'Sarabun', 'Tahoma', sans-serif; }
     body { background: #f3f4f6; margin: 0; padding: 15px; color: #1f2937; }
     .container { max-width: 920px; margin: 0 auto; background: #fff; padding: 25px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
     h2 { text-align: center; color: #111827; margin-top: 0; border-bottom: 2px solid #2563eb; padding-bottom: 10px; }
@@ -27,7 +27,7 @@
 
     .contract-review-box {
       max-height: 360px; overflow-y: auto; border: 1px solid #cbd5e1; background: #f8fafc;
-      padding: 16px 20px; border-radius: 8px; font-size: 14px; line-height: 1.9;
+      padding: 16px 20px; border-radius: 8px; font-size: 14px; line-height: 1.85;
       color: #1e293b; margin-bottom: 12px; white-space: pre-line;
     }
     .live-fill { font-weight: 700; color: #1d4ed8; text-decoration: underline; padding: 0 3px; }
@@ -65,16 +65,17 @@
       margin: 0 auto;
       background: #fff;
       color: #000;
-      font-family: 'Sarabun', sans-serif;
+      font-family: 'Sarabun', 'Tahoma', sans-serif;
       font-weight: 400;
+      font-variant-ligatures: none;
+      text-rendering: auto;
     }
     .pdf-page {
       padding: 4mm 6mm;
-      line-height: 1.9;
+      line-height: 1.85;
       font-size: 12.5px;
       background: #fff;
       position: relative;
-      word-spacing: 1px;
     }
     .page-break {
       page-break-before: always;
@@ -149,11 +150,9 @@
     .doc-subtitle { font-size: 12px; color: #1f2937; margin-top: 3px; line-height: 1.75; }
     .fill-data {
       font-weight: 700;
-      border-bottom: 1px solid #000;
-      padding: 0 3px 1px;
+      text-decoration: underline;
+      padding: 0 2px;
       color: #000;
-      display: inline;
-      line-height: 1.9;
     }
 
     .app-table { width: 100%; border-collapse: collapse; margin-bottom: 12px; font-size: 12px; line-height: 1.8; }
@@ -168,11 +167,11 @@
     .attachment-img { max-width: 100%; max-height: 170mm; width: auto; height: auto; object-fit: contain; display: block; }
     .attachment-empty { color: #6b7280; font-size: 14px; text-align: center; padding: 40px 10px; line-height: 1.8; }
 
-    .contract-body p { margin: 0 0 11px 0; text-align: left; line-height: 1.95; }
-    .contract-body ul, .contract-body ol { margin: 5px 0 11px 22px; padding: 0; line-height: 1.95; }
-    .contract-body li { margin-bottom: 6px; line-height: 1.95; }
+    .contract-body p { margin: 0 0 10px 0; text-align: left; line-height: 1.9; }
+    .contract-body ul, .contract-body ol { margin: 5px 0 10px 22px; padding: 0; line-height: 1.9; }
+    .contract-body li { margin-bottom: 6px; line-height: 1.9; }
     .clause-title { font-weight: 700; font-size: 13px; line-height: 1.8; margin-top: 12px; margin-bottom: 5px; color: #000; }
-    .rate-box { background: #f8fafc; border: 1px solid #cbd5e1; padding: 8px 12px; border-radius: 4px; margin: 6px 0 11px 0; line-height: 1.9; }
+    .rate-box { background: #f8fafc; border: 1px solid #cbd5e1; padding: 8px 12px; border-radius: 4px; margin: 6px 0 11px 0; line-height: 1.85; }
 
     .sign-area {
       margin-top: 16px; display: flex; justify-content: space-between; align-items: flex-end;
@@ -281,7 +280,6 @@
         <label>ประเภทรถ / ตำแหน่ง *</label>
         <select id="position" onchange="updateRate(); updateLivePreview();">
           <option value="รถจักรยานยนต์ (Biker)">รถจักรยานยนต์ (Biker)</option>
-          <option value="รถยนต์ (4W Driver)">รถยนต์ (4W Driver)</option>
           <option value="รถยนต์ (4W Driver) - กรุงเทพและสมุทรปราการ">รถยนต์ (4W Driver) - กรุงเทพและสมุทรปราการ</option>
           <option value="รถยนต์ (4W Driver) - ปทุมธานี, นนทบุรี, สมุทรสาคร">รถยนต์ (4W Driver) - ปทุมธานี, นนทบุรี, สมุทรสาคร</option>
         </select>
@@ -297,7 +295,7 @@
         <input type="text" id="plateNumber" placeholder="เช่น 1กข 1234 กรุงเทพฯ">
       </div>
       <div class="form-group">
-        <label>พื้นที่ / ศูนย์กระจายสินค้า (Hub) *</label>
+        <label>พื้นที่ / คลังกระจายสินค้า (DC) *</label>
         <input type="text" id="hubLocation" placeholder="ระบุพื้นที่หรือรหัส Hub">
       </div>
       <div class="form-group">
@@ -989,7 +987,7 @@
       margin: [8, 8, 8, 8],
       filename: `ใบสมัครและสัญญาจ้างขนส่ง_${name}.pdf`,
       image: { type: 'jpeg', quality: 0.85 },
-      html2canvas: { scale: 1.5, useCORS: true, scrollY: 0, letterRendering: true },
+      html2canvas: { scale: 1.5, useCORS: true, scrollY: 0 },
       jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
       pagebreak: { mode: ['css', 'legacy'], before: '.page-break', avoid: '.avoid-break' }
     };
