@@ -10,8 +10,6 @@
   <style>
     * { box-sizing: border-box; font-family: 'Sarabun', sans-serif; }
     body { background: #f3f4f6; margin: 0; padding: 15px; color: #1f2937; }
-    .top-bar { max-width: 920px; margin: 0 auto 10px; display: flex; justify-content: flex-end; gap: 8px; }
-    .btn-admin-toggle { background: #1e293b; color: #fff; border: none; padding: 7px 14px; border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer; }
     .container { max-width: 920px; margin: 0 auto; background: #fff; padding: 25px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
     h2 { text-align: center; color: #111827; margin-top: 0; border-bottom: 2px solid #2563eb; padding-bottom: 10px; }
     .section-title { font-weight: 700; color: #2563eb; margin: 20px 0 10px; font-size: 16px; border-left: 4px solid #2563eb; padding-left: 8px; }
@@ -29,15 +27,15 @@
 
     .contract-review-box {
       max-height: 360px; overflow-y: auto; border: 1px solid #cbd5e1; background: #f8fafc;
-      padding: 16px 20px; border-radius: 8px; font-size: 14px; line-height: 1.75;
+      padding: 16px 20px; border-radius: 8px; font-size: 14px; line-height: 1.9;
       color: #1e293b; margin-bottom: 12px; white-space: pre-line;
     }
     .live-fill { font-weight: 700; color: #1d4ed8; text-decoration: underline; padding: 0 3px; }
 
     .consent-group { background: #eff6ff; border: 1px solid #bfdbfe; padding: 12px 14px; border-radius: 8px; margin-bottom: 14px; }
-    .checkbox-label { display: flex; align-items: flex-start; gap: 10px; font-weight: 600; font-size: 14px; color: #1e3a8a; cursor: pointer; margin-bottom: 8px; }
+    .checkbox-label { display: flex; align-items: flex-start; gap: 10px; font-weight: 600; font-size: 14px; color: #1e3a8a; cursor: pointer; margin-bottom: 8px; line-height: 1.7; }
     .checkbox-label:last-child { margin-bottom: 0; }
-    .checkbox-label input[type="checkbox"] { width: 18px; height: 18px; margin-top: 2px; flex-shrink: 0; cursor: pointer; }
+    .checkbox-label input[type="checkbox"] { width: 18px; height: 18px; margin-top: 3px; flex-shrink: 0; cursor: pointer; }
 
     .sig-wrapper { position: relative; }
     .sig-box { border: 2px dashed #9ca3af; border-radius: 8px; background: #fafafa; text-align: center; }
@@ -72,10 +70,11 @@
     }
     .pdf-page {
       padding: 4mm 6mm;
-      line-height: 1.65;
+      line-height: 1.9;
       font-size: 12.5px;
       background: #fff;
       position: relative;
+      word-spacing: 1px;
     }
     .page-break {
       page-break-before: always;
@@ -131,9 +130,9 @@
       display: block;
     }
     .applicant-photo-placeholder {
-      font-size: 10.5px;
+      font-size: 11px;
       color: #6b7280;
-      line-height: 1.35;
+      line-height: 1.55;
     }
 
     .doc-header {
@@ -141,17 +140,24 @@
       align-items: center;
       justify-content: center;
       gap: 10px;
-      margin-bottom: 10px;
+      margin-bottom: 12px;
       border-bottom: 1.5px solid #111827;
-      padding-bottom: 7px;
+      padding-bottom: 8px;
       text-align: center;
     }
-    .doc-title { font-size: 15.5px; font-weight: 700; margin: 0; line-height: 1.35; }
-    .doc-subtitle { font-size: 12px; color: #1f2937; margin-top: 3px; line-height: 1.5; }
-    .fill-data { font-weight: 700; text-decoration: underline; padding: 0 2px; color: #000; }
+    .doc-title { font-size: 15.5px; font-weight: 700; margin: 0; line-height: 1.65; }
+    .doc-subtitle { font-size: 12px; color: #1f2937; margin-top: 3px; line-height: 1.75; }
+    .fill-data {
+      font-weight: 700;
+      border-bottom: 1px solid #000;
+      padding: 0 3px 1px;
+      color: #000;
+      display: inline;
+      line-height: 1.9;
+    }
 
-    .app-table { width: 100%; border-collapse: collapse; margin-bottom: 10px; font-size: 12px; line-height: 1.5; }
-    .app-table th, .app-table td { border: 1px solid #6b7280; padding: 5.5px 8px; text-align: left; vertical-align: top; }
+    .app-table { width: 100%; border-collapse: collapse; margin-bottom: 12px; font-size: 12px; line-height: 1.8; }
+    .app-table th, .app-table td { border: 1px solid #6b7280; padding: 6px 8px; text-align: left; vertical-align: top; }
     .app-table th { background: #f3f4f6; width: 20%; font-weight: 700; color: #111827; }
     .app-table td { width: 30%; }
 
@@ -160,39 +166,30 @@
       display: flex; flex-direction: column; align-items: center; justify-content: center; background: #fff;
     }
     .attachment-img { max-width: 100%; max-height: 170mm; width: auto; height: auto; object-fit: contain; display: block; }
-    .attachment-empty { color: #6b7280; font-size: 14px; text-align: center; padding: 40px 10px; }
+    .attachment-empty { color: #6b7280; font-size: 14px; text-align: center; padding: 40px 10px; line-height: 1.8; }
 
-    .contract-body p { margin: 0 0 8px 0; text-align: left; line-height: 1.7; }
-    .contract-body ul, .contract-body ol { margin: 4px 0 9px 22px; padding: 0; line-height: 1.7; }
-    .contract-body li { margin-bottom: 4px; line-height: 1.7; }
-    .clause-title { font-weight: 700; font-size: 13px; line-height: 1.6; margin-top: 10px; margin-bottom: 4px; color: #000; }
-    .rate-box { background: #f8fafc; border: 1px solid #cbd5e1; padding: 7px 11px; border-radius: 4px; margin: 5px 0 9px 0; line-height: 1.65; }
+    .contract-body p { margin: 0 0 11px 0; text-align: left; line-height: 1.95; }
+    .contract-body ul, .contract-body ol { margin: 5px 0 11px 22px; padding: 0; line-height: 1.95; }
+    .contract-body li { margin-bottom: 6px; line-height: 1.95; }
+    .clause-title { font-weight: 700; font-size: 13px; line-height: 1.8; margin-top: 12px; margin-bottom: 5px; color: #000; }
+    .rate-box { background: #f8fafc; border: 1px solid #cbd5e1; padding: 8px 12px; border-radius: 4px; margin: 6px 0 11px 0; line-height: 1.9; }
 
     .sign-area {
-      margin-top: 14px; display: flex; justify-content: space-between; align-items: flex-end;
-      gap: 20px; line-height: 1.55; page-break-inside: avoid; break-inside: avoid;
+      margin-top: 16px; display: flex; justify-content: space-between; align-items: flex-end;
+      gap: 20px; line-height: 1.8; page-break-inside: avoid; break-inside: avoid;
     }
     .sign-block { width: 48%; display: flex; flex-direction: column; align-items: center; text-align: center; }
-    .sign-slot { height: 48px; width: 100%; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; }
+    .sign-slot { height: 50px; width: 100%; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; }
     .sign-img { max-height: 44px; max-width: 175px; width: auto; object-fit: contain; display: block; margin: 0 auto 2px; }
     .sign-line { display: block; width: 100%; text-align: center; letter-spacing: 0; white-space: nowrap; overflow: hidden; font-size: 12px; }
-    .sign-caption { margin: 3px 0 0; font-size: 12px; text-align: center; line-height: 1.5; }
+    .sign-caption { margin: 4px 0 0; font-size: 12px; text-align: center; line-height: 1.75; }
 
-    #admin-section { display: none; }
-    .admin-filters { display: flex; gap: 10px; margin-bottom: 14px; }
-    .admin-table-wrap { overflow-x: auto; }
-    .admin-table { width: 100%; border-collapse: collapse; font-size: 13px; }
-    .admin-table th, .admin-table td { border: 1px solid #d1d5db; padding: 8px; text-align: left; white-space: nowrap; }
-    .admin-table th { background: #1e293b; color: #fff; }
-    .admin-table tr:nth-child(even) { background: #f8fafc; }
-    .btn-pdf-link { background: #059669; color: #fff; text-decoration: none; padding: 4px 10px; border-radius: 4px; font-size: 12px; font-weight: 600; display: inline-block; }
-
-    #loading-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.65); color: #fff; justify-content: center; align-items: center; flex-direction: column; z-index: 9999; font-size: 18px; }
+    #loading-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.65); color: #fff; justify-content: center; align-items: center; flex-direction: column; z-index: 9999; font-size: 18px; line-height: 1.7; }
 
     @media print {
       @page { size: A4 portrait; margin: 8mm; }
       body { background: #fff !important; padding: 0 !important; margin: 0 !important; }
-      .top-bar, .view-tabs, #form-section, #admin-section, #loading-overlay, #pdf-btn, .btn-secondary { display: none !important; }
+      .view-tabs, #form-section, #loading-overlay, #pdf-btn, .btn-secondary { display: none !important; }
       .container { max-width: 100% !important; width: 100% !important; margin: 0 !important; padding: 0 !important; box-shadow: none !important; border-radius: 0 !important; }
       #preview-section { display: block !important; margin: 0 !important; }
       .pdf-scroll-wrap { overflow: visible !important; background: #fff !important; padding: 0 !important; }
@@ -204,7 +201,7 @@
     }
 
     @media (max-width: 600px) {
-      .row, .admin-filters { flex-direction: column; gap: 6px; }
+      .row { flex-direction: column; gap: 6px; }
     }
   </style>
 </head>
@@ -213,10 +210,6 @@
 <div id="loading-overlay">
   <div id="loading-text">กำลังบันทึกข้อมูลเข้าระบบและเตรียมไฟล์ PDF...</div>
   <div style="font-size: 14px; margin-top: 8px;">กรุณารอสักครู่ครับ</div>
-</div>
-
-<div class="top-bar">
-  <button type="button" class="btn-admin-toggle" id="toggle-mode-btn" onclick="toggleAdminMode()">โหมดเจ้าหน้าที่ (ดูข้อมูลผู้สมัคร)</button>
 </div>
 
 <div class="container">
@@ -288,6 +281,7 @@
         <label>ประเภทรถ / ตำแหน่ง *</label>
         <select id="position" onchange="updateRate(); updateLivePreview();">
           <option value="รถจักรยานยนต์ (Biker)">รถจักรยานยนต์ (Biker)</option>
+          <option value="รถยนต์ (4W Driver)">รถยนต์ (4W Driver)</option>
           <option value="รถยนต์ (4W Driver) - กรุงเทพและสมุทรปราการ">รถยนต์ (4W Driver) - กรุงเทพและสมุทรปราการ</option>
           <option value="รถยนต์ (4W Driver) - ปทุมธานี, นนทบุรี, สมุทรสาคร">รถยนต์ (4W Driver) - ปทุมธานี, นนทบุรี, สมุทรสาคร</option>
         </select>
@@ -763,47 +757,13 @@
     <button type="button" id="pdf-btn" class="btn btn-success" onclick="submitAndExportPDF()">บันทึกข้อมูลเข้าระบบ และเซฟเป็น PDF (ใบสมัคร + เอกสารแนบ + สัญญาจ้าง)</button>
     <button type="button" class="btn btn-secondary" style="width: 100%; margin-top: 8px;" onclick="backToForm()">กลับไปแก้ไขข้อมูล</button>
   </div>
-
-  <!-- ================= โหมดเจ้าหน้าที่ ================= -->
-  <div id="admin-section">
-    <h2>ระบบตรวจสอบข้อมูลผู้สมัครและสัญญาจ้าง (สำหรับเจ้าหน้าที่)</h2>
-    <div class="admin-filters">
-      <input type="text" id="admin-search" placeholder="ค้นหา รหัสพนักงาน, ชื่อ, เลขบัตร, เบอร์โทร, Hub..." oninput="filterAdminTable()">
-      <button type="button" class="btn btn-primary" style="width: auto; margin: 0;" onclick="loadApplicants()">รีเฟรชข้อมูล</button>
-    </div>
-    <div class="admin-table-wrap">
-      <table class="admin-table">
-        <thead>
-          <tr>
-            <th>วันที่สมัคร</th>
-            <th>รหัสพนักงาน</th>
-            <th>ชื่อ-นามสกุล</th>
-            <th>เบอร์โทร</th>
-            <th>ที่อยู่ปัจจุบัน</th>
-            <th>ที่อยู่ตามทะเบียนบ้าน</th>
-            <th>ประเภทรถ</th>
-            <th>Hub</th>
-            <th>ธนาคาร / ชื่อบัญชี / เลขบัญชี</th>
-            <th>ติดต่อฉุกเฉิน</th>
-            <th>เอกสาร PDF</th>
-          </tr>
-        </thead>
-        <tbody id="admin-tbody">
-          <tr><td colspan="11" style="text-align:center;">กำลังโหลดข้อมูล...</td></tr>
-        </tbody>
-      </table>
-    </div>
-  </div>
 </div>
 
 <script>
   const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxRoZQPoP9H6q5bZ5yRBUsFB0PVMVE2bzCtUKFOviX40UKBSqPIzP4HfSSoiS7VxKoM/exec';
-  const ADMIN_PIN = 'Admin1234';
 
   const canvas = document.getElementById('signature-pad');
   const signaturePad = new SignaturePad(canvas, { penColor: 'rgb(0, 0, 128)' });
-  let isAdminAuthenticated = false;
-  let allApplicants = [];
 
   function resizeCanvas() {
     const ratio = Math.max(window.devicePixelRatio || 1, 1);
@@ -1028,8 +988,8 @@
     const opt = {
       margin: [8, 8, 8, 8],
       filename: `ใบสมัครและสัญญาจ้างขนส่ง_${name}.pdf`,
-      image: { type: 'jpeg', quality: 0.75 },
-      html2canvas: { scale: 1.25, useCORS: true, scrollY: 0 },
+      image: { type: 'jpeg', quality: 0.85 },
+      html2canvas: { scale: 1.5, useCORS: true, scrollY: 0, letterRendering: true },
       jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
       pagebreak: { mode: ['css', 'legacy'], before: '.page-break', avoid: '.avoid-break' }
     };
@@ -1078,87 +1038,6 @@
       loader.style.display = 'none';
       btn.disabled = false;
     }
-  }
-
-  function toggleAdminMode() {
-    const adminSec = document.getElementById('admin-section');
-    const formSec = document.getElementById('form-section');
-    const prevSec = document.getElementById('preview-section');
-    const btn = document.getElementById('toggle-mode-btn');
-
-    if (adminSec.style.display === 'block') {
-      adminSec.style.display = 'none';
-      formSec.style.display = 'block';
-      btn.innerText = 'โหมดเจ้าหน้าที่ (ดูข้อมูลผู้สมัคร)';
-      return;
-    }
-
-    if (!isAdminAuthenticated) {
-      const pin = prompt('กรุณากรอกรหัสผ่านสำหรับเจ้าหน้าที่:');
-      if (pin !== ADMIN_PIN) {
-        alert('รหัสผ่านไม่ถูกต้องครับ');
-        return;
-      }
-      isAdminAuthenticated = true;
-    }
-
-    formSec.style.display = 'none';
-    prevSec.style.display = 'none';
-    adminSec.style.display = 'block';
-    btn.innerText = 'กลับหน้าแบบฟอร์มสมัครงาน';
-    loadApplicants();
-  }
-
-  async function loadApplicants() {
-    const tbody = document.getElementById('admin-tbody');
-    tbody.innerHTML = '<tr><td colspan="11" style="text-align:center;">กำลังดึงข้อมูลจาก Google Sheets...</td></tr>';
-    try {
-      const res = await fetch(SCRIPT_URL);
-      const json = await res.json();
-      if (json.status === 'success') {
-        allApplicants = json.data;
-        renderAdminTable(allApplicants);
-      } else {
-        tbody.innerHTML = `<tr><td colspan="11" style="text-align:center; color:#dc2626;">เกิดข้อผิดพลาด: ${json.message}</td></tr>`;
-      }
-    } catch (e) {
-      tbody.innerHTML = `<tr><td colspan="11" style="text-align:center; color:#dc2626;">ไม่สามารถเชื่อมต่อข้อมูลได้: ${e.message}</td></tr>`;
-    }
-  }
-
-  function renderAdminTable(data) {
-    const tbody = document.getElementById('admin-tbody');
-    if (!data.length) {
-      tbody.innerHTML = '<tr><td colspan="11" style="text-align:center;">ยังไม่มีข้อมูลผู้สมัครในระบบ</td></tr>';
-      return;
-    }
-    tbody.innerHTML = data.map(item => `
-      <tr>
-        <td>${item.timestamp}</td>
-        <td><strong>${item.employeeCode || '-'}</strong></td>
-        <td><strong>${item.fullName}</strong><br><small>บัตรฯ: ${item.idCard}</small></td>
-        <td>${item.phone}</td>
-        <td>${item.address || '-'}</td>
-        <td>${item.registeredAddress || '-'}</td>
-        <td>${item.position}<br><small>ทะเบียน: ${item.plateNumber}</small></td>
-        <td>${item.hubLocation}</td>
-        <td>${item.bankName}<br><small>ชื่อบัญชี: ${item.bankAccountName} | เลข: ${item.bankAccount}</small></td>
-        <td>${item.emerName} (${item.emerRelation})<br><small>โทร: ${item.emerPhone}</small></td>
-        <td><a href="${item.pdfUrl}" target="_blank" class="btn-pdf-link">เปิดดู PDF</a></td>
-      </tr>
-    `).join('');
-  }
-
-  function filterAdminTable() {
-    const q = document.getElementById('admin-search').value.toLowerCase();
-    const filtered = allApplicants.filter(item =>
-      (item.employeeCode || '').toLowerCase().includes(q) ||
-      (item.fullName || '').toLowerCase().includes(q) ||
-      (item.idCard || '').toLowerCase().includes(q) ||
-      (item.phone || '').toLowerCase().includes(q) ||
-      (item.hubLocation || '').toLowerCase().includes(q)
-    );
-    renderAdminTable(filtered);
   }
 </script>
 
