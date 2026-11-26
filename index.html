@@ -9,7 +9,9 @@
   <style>
     * { box-sizing: border-box; font-family: 'Noto Sans Thai', 'Sarabun', sans-serif; }
     body { background: #f3f4f6; margin: 0; padding: 15px; color: #1f2937; }
-    .container { max-width: 920px; margin: 0 auto; background: #fff; padding: 25px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
+    .container { max-width: 980px; margin: 0 auto; background: #fff; padding: 25px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
+    .top-bar { display: flex; justify-content: flex-end; margin-bottom: 10px; gap: 8px; }
+    .btn-mode { background: #111827; color: #fff; border: none; border-radius: 6px; padding: 8px 14px; font-size: 13px; font-weight: 600; cursor: pointer; }
     h2 { text-align: center; color: #111827; margin-top: 0; border-bottom: 2px solid #2563eb; padding-bottom: 10px; }
     .section-title { font-weight: 700; color: #2563eb; margin: 20px 0 10px; font-size: 16px; border-left: 4px solid #2563eb; padding-left: 8px; }
     .form-group { margin-bottom: 14px; }
@@ -17,7 +19,6 @@
     .label-inline { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 5px; }
     .label-inline label { margin-bottom: 0; }
     .btn-mini-copy { background: #e0e7ff; color: #1d4ed8; border: none; border-radius: 4px; padding: 2px 8px; font-size: 12px; font-weight: 600; cursor: pointer; }
-    .btn-mini-copy:hover { background: #c7d2fe; }
     input[type="text"], input[type="number"], input[type="tel"], input[type="file"], select, textarea {
       width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 15px;
     }
@@ -25,7 +26,7 @@
     .row .form-group { flex: 1; min-width: 200px; }
 
     .contract-review-box {
-      max-height: 360px; overflow-y: auto; border: 1px solid #cbd5e1; background: #f8fafc;
+      max-height: 320px; overflow-y: auto; border: 1px solid #cbd5e1; background: #f8fafc;
       padding: 16px 20px; border-radius: 8px; font-size: 14px; line-height: 1.85;
       color: #1e293b; margin-bottom: 12px; white-space: pre-line;
     }
@@ -48,121 +49,51 @@
     .btn { padding: 12px 20px; border: none; border-radius: 6px; font-size: 16px; font-weight: 600; cursor: pointer; width: 100%; margin-top: 10px; }
     .btn-primary { background: #2563eb; color: #fff; }
     .btn-primary:disabled { background: #9ca3af; cursor: not-allowed; }
-    .btn-secondary { background: #e5e7eb; color: #374151; width: auto; padding: 6px 14px; font-size: 13px; margin-top: 5px; }
+    .btn-secondary { background: #e5e7eb; color: #374151; width: auto; padding: 8px 14px; font-size: 13px; margin-top: 5px; }
     .btn-success { background: #059669; color: #fff; }
-    .btn-success:disabled { background: #9ca3af; cursor: not-allowed; }
+    .btn-open-doc { background: #059669; color: #fff; border: none; border-radius: 6px; padding: 7px 12px; font-size: 12.5px; font-weight: 600; cursor: pointer; white-space: nowrap; }
 
+    /* ================= โหมดเจ้าหน้าที่ ================= */
+    #admin-section { display: none; }
+    .admin-toolbar { display: flex; gap: 10px; margin-bottom: 14px; flex-wrap: wrap; }
+    .admin-toolbar input { flex: 1; min-width: 220px; }
+    .btn-refresh { background: #2563eb; color: #fff; border: none; border-radius: 6px; padding: 10px 16px; font-weight: 600; cursor: pointer; }
+    .admin-table-wrap { overflow-x: auto; border: 1px solid #e5e7eb; border-radius: 8px; }
+    .admin-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    .admin-table th { background: #1e293b; color: #fff; padding: 10px; text-align: left; white-space: nowrap; }
+    .admin-table td { border-bottom: 1px solid #e5e7eb; padding: 9px 10px; vertical-align: middle; }
+
+    /* ================= เอกสารและพิมพ์ PDF ================= */
+    #preview-section { display: none; margin-top: 10px; }
     .view-tabs { display: flex; gap: 8px; margin-bottom: 14px; background: #f1f5f9; padding: 6px; border-radius: 8px; flex-wrap: wrap; }
     .tab-btn { flex: 1; min-width: 125px; padding: 8px 10px; border: none; border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer; background: transparent; color: #475569; }
     .tab-btn.active { background: #2563eb; color: #fff; }
 
-    /* ================= สไตล์สำหรับเอกสารและพิมพ์ PDF (ขนาด A4) ================= */
-    #preview-section { display: none; margin-top: 10px; }
     .pdf-scroll-wrap { overflow-x: auto; background: #e5e7eb; padding: 12px; border-radius: 8px; }
-    #pdf-content {
-      width: 190mm;
-      margin: 0 auto;
-      background: #fff;
-      color: #000;
-      font-family: 'Noto Sans Thai', 'Sarabun', sans-serif;
-      font-weight: 400;
-    }
-    .pdf-page {
-      padding: 4mm 6mm;
-      line-height: 1.85;
-      font-size: 12.5px;
-      background: #fff;
-      position: relative;
-    }
-    .page-break {
-      page-break-before: always;
-      break-before: page;
-    }
-    .avoid-break {
-      page-break-inside: avoid;
-      break-inside: avoid;
-    }
+    #pdf-content { width: 190mm; margin: 0 auto; background: #fff; color: #000; font-family: 'Noto Sans Thai', 'Sarabun', sans-serif; }
+    .pdf-page { padding: 4mm 6mm; line-height: 1.85; font-size: 12.5px; background: #fff; }
+    .page-break { page-break-before: always; break-before: page; }
+    .avoid-break { page-break-inside: avoid; break-inside: avoid; }
 
-    .app-top-banner {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      gap: 12px;
-      border-bottom: 1.5px solid #111827;
-      padding-bottom: 8px;
-      margin-bottom: 10px;
-    }
-    .brand-header {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      flex: 1;
-    }
-    .company-logo {
-      width: 44px;
-      height: 44px;
-      object-fit: contain;
-      flex-shrink: 0;
-    }
-    .brand-title-group {
-      text-align: left;
-    }
-    .applicant-photo-box {
-      width: 26mm;
-      height: 32mm;
-      border: 1px solid #6b7280;
-      border-radius: 4px;
-      background: #f9fafb;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      text-align: center;
-      overflow: hidden;
-      flex-shrink: 0;
-      padding: 2px;
-    }
-    .applicant-photo-img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      display: block;
-    }
-    .applicant-photo-placeholder {
-      font-size: 11px;
-      color: #6b7280;
-      line-height: 1.55;
-    }
+    .app-top-banner { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; border-bottom: 1.5px solid #111827; padding-bottom: 8px; margin-bottom: 10px; }
+    .brand-header { display: flex; align-items: center; gap: 10px; flex: 1; }
+    .company-logo { width: 44px; height: 44px; object-fit: contain; flex-shrink: 0; }
+    .brand-title-group { text-align: left; }
+    .applicant-photo-box { width: 26mm; height: 32mm; border: 1px solid #6b7280; border-radius: 4px; background: #f9fafb; display: flex; align-items: center; justify-content: center; text-align: center; overflow: hidden; flex-shrink: 0; padding: 2px; }
+    .applicant-photo-img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .applicant-photo-placeholder { font-size: 11px; color: #6b7280; line-height: 1.55; }
 
-    .doc-header {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 10px;
-      margin-bottom: 12px;
-      border-bottom: 1.5px solid #111827;
-      padding-bottom: 8px;
-      text-align: center;
-    }
+    .doc-header { display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 12px; border-bottom: 1.5px solid #111827; padding-bottom: 8px; text-align: center; }
     .doc-title { font-size: 15.5px; font-weight: 700; margin: 0; line-height: 1.65; }
     .doc-subtitle { font-size: 12px; color: #1f2937; margin-top: 3px; line-height: 1.75; }
-    .fill-data {
-      font-weight: 700;
-      border-bottom: 1px solid #000;
-      padding: 0 3px 1px;
-      color: #000;
-      display: inline;
-      line-height: 1.85;
-    }
+    .fill-data { font-weight: 700; border-bottom: 1px solid #000; padding: 0 3px 1px; color: #000; }
 
     .app-table { width: 100%; border-collapse: collapse; margin-bottom: 12px; font-size: 12px; line-height: 1.8; }
     .app-table th, .app-table td { border: 1px solid #6b7280; padding: 6px 8px; text-align: left; vertical-align: top; }
     .app-table th { background: #f3f4f6; width: 20%; font-weight: 700; color: #111827; }
     .app-table td { width: 30%; }
 
-    .attachment-box {
-      border: 1px solid #9ca3af; border-radius: 6px; padding: 12px; min-height: 185mm;
-      display: flex; flex-direction: column; align-items: center; justify-content: center; background: #fff;
-    }
+    .attachment-box { border: 1px solid #9ca3af; border-radius: 6px; padding: 12px; min-height: 185mm; display: flex; flex-direction: column; align-items: center; justify-content: center; background: #fff; }
     .attachment-img { max-width: 100%; max-height: 170mm; width: auto; height: auto; object-fit: contain; display: block; }
     .attachment-empty { color: #6b7280; font-size: 14px; text-align: center; padding: 40px 10px; line-height: 1.8; }
 
@@ -172,45 +103,67 @@
     .clause-title { font-weight: 700; font-size: 13px; line-height: 1.8; margin-top: 12px; margin-bottom: 5px; color: #000; }
     .rate-box { background: #f8fafc; border: 1px solid #cbd5e1; padding: 8px 12px; border-radius: 4px; margin: 6px 0 11px 0; line-height: 1.85; }
 
-    .sign-area {
-      margin-top: 16px; display: flex; justify-content: space-between; align-items: flex-end;
-      gap: 20px; line-height: 1.8; page-break-inside: avoid; break-inside: avoid;
-    }
+    .sign-area { margin-top: 16px; display: flex; justify-content: space-between; align-items: flex-end; gap: 20px; line-height: 1.8; page-break-inside: avoid; break-inside: avoid; }
     .sign-block { width: 48%; display: flex; flex-direction: column; align-items: center; text-align: center; }
     .sign-slot { height: 50px; width: 100%; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; }
     .sign-img { max-height: 44px; max-width: 175px; width: auto; object-fit: contain; display: block; margin: 0 auto 2px; }
-    .sign-line { display: block; width: 100%; text-align: center; letter-spacing: 0; white-space: nowrap; overflow: hidden; font-size: 12px; }
+    .sign-line { display: block; width: 100%; text-align: center; font-size: 12px; }
     .sign-caption { margin: 4px 0 0; font-size: 12px; text-align: center; line-height: 1.75; }
 
-    #loading-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.65); color: #fff; justify-content: center; align-items: center; flex-direction: column; z-index: 9999; font-size: 18px; line-height: 1.7; }
+    #loading-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.65); color: #fff; justify-content: center; align-items: center; flex-direction: column; z-index: 9999; font-size: 18px; }
 
     @media print {
       @page { size: A4 portrait; margin: 8mm; }
       body { background: #fff !important; padding: 0 !important; margin: 0 !important; }
-      .view-tabs, #form-section, #loading-overlay, #pdf-btn, .btn-secondary { display: none !important; }
+      .top-bar, .view-tabs, #form-section, #admin-section, #loading-overlay, #pdf-btn, .btn-secondary { display: none !important; }
       .container { max-width: 100% !important; width: 100% !important; margin: 0 !important; padding: 0 !important; box-shadow: none !important; border-radius: 0 !important; }
       #preview-section { display: block !important; margin: 0 !important; }
       .pdf-scroll-wrap { overflow: visible !important; background: #fff !important; padding: 0 !important; }
       #pdf-content { width: 100% !important; margin: 0 !important; }
       .pdf-page { display: block !important; padding: 0 !important; }
       .page-break { page-break-before: always !important; break-before: page !important; }
-      .attachment-box { min-height: 240mm !important; }
-      .attachment-img { max-height: 225mm !important; }
-    }
-
-    @media (max-width: 600px) {
-      .row { flex-direction: column; gap: 6px; }
     }
   </style>
 </head>
 <body>
 
 <div id="loading-overlay">
-  <div id="loading-text">กำลังบันทึกข้อมูลเข้าระบบ...</div>
-  <div style="font-size: 14px; margin-top: 8px;">กรุณารอสักครู่ครับ</div>
+  <div id="loading-text">กำลังประมวลผล...</div>
 </div>
 
 <div class="container">
+  <div class="top-bar">
+    <button type="button" class="btn-mode" onclick="showAdminMode()">โหมดเจ้าหน้าที่ (ดาวน์โหลด PDF รายบุคคล)</button>
+    <button type="button" class="btn-mode" onclick="showFormMode()">หน้าแบบฟอร์มสมัครงาน</button>
+  </div>
+
+  <!-- ================= โหมดเจ้าหน้าที่ ================= -->
+  <div id="admin-section">
+    <h2>ระบบตรวจสอบและดาวน์โหลดเอกสาร PDF ผู้สมัคร (สำหรับเจ้าหน้าที่)</h2>
+    <div class="admin-toolbar">
+      <input type="text" id="admin-search" placeholder="ค้นหารหัสพนักงาน, ชื่อ, เลขบัตร, เบอร์โทร, Hub..." oninput="filterAdminRows()">
+      <button type="button" class="btn-refresh" onclick="loadAdminData()">รีเฟรชข้อมูล</button>
+    </div>
+    <div class="admin-table-wrap">
+      <table class="admin-table">
+        <thead>
+          <tr>
+            <th>รหัสพนักงาน</th>
+            <th>ชื่อ-นามสกุล</th>
+            <th>เบอร์โทร</th>
+            <th>ประเภทรถ / Hub</th>
+            <th>ธนาคาร / เลขบัญชี</th>
+            <th>เอกสาร PDF</th>
+          </tr>
+        </thead>
+        <tbody id="admin-tbody">
+          <tr><td colspan="6" style="text-align:center; padding:20px;">กดปุ่ม "รีเฟรชข้อมูล" เพื่อโหลดรายชื่อผู้สมัคร</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ================= หน้าแบบฟอร์มสมัครงาน ================= -->
   <div id="form-section">
     <h2>แบบฟอร์มสมัครงานและจัดทำสัญญาจ้างขนส่ง</h2>
 
@@ -319,7 +272,7 @@
       </div>
     </div>
 
-    <div class="section-title">5. แนบเอกสารประกอบการสมัคร (แสดงหน้าละ 1 แผ่นในเอกสาร)</div>
+    <div class="section-title">5. แนบเอกสารประกอบการสมัคร</div>
     <div class="row">
       <div class="form-group">
         <label>บัตรประชาชน</label>
@@ -751,13 +704,14 @@
       </div>
     </div>
 
-    <button type="button" id="pdf-btn" class="btn btn-success" onclick="submitAndExportPDF()">บันทึกข้อมูลเข้าระบบ และเซฟเป็น PDF (ใบสมัคร + เอกสารแนบ + สัญญาจ้าง)</button>
-    <button type="button" class="btn btn-secondary" style="width: 100%; margin-top: 8px;" onclick="backToForm()">กลับไปแก้ไขข้อมูล</button>
+    <button type="button" id="pdf-btn" class="btn btn-success" onclick="printCurrentDocument()">พิมพ์ / บันทึกเป็น PDF (Save as PDF)</button>
+    <button type="button" class="btn btn-secondary" style="width: 100%; margin-top: 8px;" onclick="backFromPreview()">ย้อนกลับ</button>
   </div>
 </div>
 
 <script>
   const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxRoZQPoP9H6q5bZ5yRBUsFB0PVMVE2bzCtUKFOviX40UKBSqPIzP4HfSSoiS7VxKoM/exec';
+  let adminRecords = [];
 
   const canvas = document.getElementById('signature-pad');
   const signaturePad = new SignaturePad(canvas, { penColor: 'rgb(0, 0, 128)' });
@@ -779,6 +733,123 @@
   ];
   document.getElementById('effectiveDate').value = `${now.getDate()} ${thaiMonthsInit[now.getMonth()]} ${now.getFullYear() + 543}`;
 
+  function showFormMode() {
+    document.getElementById('admin-section').style.display = 'none';
+    document.getElementById('preview-section').style.display = 'none';
+    document.getElementById('form-section').style.display = 'block';
+  }
+
+  function showAdminMode() {
+    document.getElementById('form-section').style.display = 'none';
+    document.getElementById('preview-section').style.display = 'none';
+    document.getElementById('admin-section').style.display = 'block';
+    if (!adminRecords.length) loadAdminData();
+  }
+
+  function backFromPreview() {
+    document.getElementById('preview-section').style.display = 'none';
+    if (adminRecords.length && document.getElementById('admin-tbody').dataset.fromAdmin === '1') {
+      document.getElementById('admin-section').style.display = 'block';
+    } else {
+      document.getElementById('form-section').style.display = 'block';
+    }
+  }
+
+  async function loadAdminData() {
+    const tbody = document.getElementById('admin-tbody');
+    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding:20px;">กำลังโหลดข้อมูลจาก Google Sheets...</td></tr>';
+    try {
+      const res = await fetch(SCRIPT_URL);
+      const json = await res.json();
+      if (json.status !== 'success') throw new Error(json.message || 'โหลดข้อมูลไม่สำเร็จ');
+      adminRecords = json.data || [];
+      renderAdminRows(adminRecords);
+    } catch (err) {
+      tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:#dc2626; padding:20px;">โหลดข้อมูลไม่สำเร็จ: ${err.message}</td></tr>`;
+    }
+  }
+
+  function renderAdminRows(rows) {
+    const tbody = document.getElementById('admin-tbody');
+    if (!rows.length) {
+      tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding:20px;">ไม่พบข้อมูลผู้สมัคร</td></tr>';
+      return;
+    }
+    tbody.innerHTML = rows.map((item, idx) => `
+      <tr>
+        <td><strong>${escapeHtml(item.employeeCode || '-')}</strong></td>
+        <td>${escapeHtml(item.fullName || '-')}</td>
+        <td>${escapeHtml(item.phone || '-')}</td>
+        <td>${escapeHtml(item.position || '-')}<br><small>Hub: ${escapeHtml(item.hubLocation || '-')}</small></td>
+        <td>${escapeHtml(item.bankName || '-')}<br><small>${escapeHtml(item.bankAccountName || '')} | ${escapeHtml(item.bankAccount || '')}</small></td>
+        <td><button type="button" class="btn-open-doc" onclick="openRecordDocument(${idx})">เปิดเอกสาร / เซฟ PDF</button></td>
+      </tr>
+    `).join('');
+  }
+
+  function filterAdminRows() {
+    const q = document.getElementById('admin-search').value.trim().toLowerCase();
+    if (!q) return renderAdminRows(adminRecords);
+    const filtered = adminRecords.filter(r =>
+      [r.employeeCode, r.fullName, r.idCard, r.phone, r.hubLocation, r.position]
+        .some(val => String(val || '').toLowerCase().includes(q))
+    );
+    renderAdminRows(filtered);
+  }
+
+  function openRecordDocument(index) {
+    const item = adminRecords[index];
+    if (!item) return;
+
+    const d = new Date();
+    const dayStr = String(d.getDate());
+    const monthStr = thaiMonthsInit[d.getMonth()];
+    const yearStr = String(d.getFullYear() + 543);
+
+    const values = {
+      day: dayStr,
+      month: monthStr,
+      year: yearStr,
+      fullDate: `${dayStr} ${monthStr} พ.ศ. ${yearStr}`,
+      employeeCode: item.employeeCode || '-',
+      fullName: item.fullName || '',
+      age: item.age || '',
+      idCard: item.idCard || '',
+      phone: item.phone || '',
+      address: item.address || '',
+      registeredAddress: item.registeredAddress || item.address || '',
+      emerName: item.emerName || '',
+      emerRelation: item.emerRelation || '',
+      emerPhone: item.emerPhone || '',
+      position: item.position || '',
+      rate: item.rate || '',
+      plateNumber: item.plateNumber || '-',
+      hubLocation: item.hubLocation || '',
+      effectiveDate: `${dayStr} ${monthStr} ${yearStr}`,
+      bankName: item.bankName || '',
+      bankAccountName: item.bankAccountName || '',
+      bankAccount: item.bankAccount || '',
+      signName: item.fullName || ''
+    };
+
+    document.querySelectorAll('[data-bind]').forEach(el => {
+      const key = el.getAttribute('data-bind');
+      if (values[key] !== undefined) el.innerText = values[key];
+    });
+
+    document.querySelectorAll('.bind-sig').forEach(img => { img.src = ''; });
+    document.getElementById('admin-tbody').dataset.fromAdmin = '1';
+    switchDocView('all');
+    document.getElementById('admin-section').style.display = 'none';
+    document.getElementById('form-section').style.display = 'none';
+    document.getElementById('preview-section').style.display = 'block';
+    window.scrollTo(0, 0);
+  }
+
+  function escapeHtml(str) {
+    return String(str).replace(/[&<>"']/g, m => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[m]));
+  }
+
   function copyCurrentAddress() {
     document.getElementById('registeredAddress').value = document.getElementById('address').value;
   }
@@ -794,10 +865,6 @@
         if (emptyEl) emptyEl.style.display = 'none';
       };
       reader.readAsDataURL(input.files[0]);
-    } else {
-      imgEl.src = '';
-      imgEl.style.display = 'none';
-      if (emptyEl) emptyEl.style.display = 'block';
     }
   }
 
@@ -815,7 +882,6 @@
       rate: document.getElementById('rate').value.trim() || '8 บาทต่อชิ้น',
       effectiveDate: document.getElementById('effectiveDate').value.trim() || '………………………………………'
     };
-
     document.querySelectorAll('[data-live]').forEach(el => {
       const key = el.getAttribute('data-live');
       if (liveData[key] !== undefined) el.innerText = liveData[key];
@@ -826,16 +892,8 @@
   function checkConsent() {
     const c1 = document.getElementById('chk-contract').checked;
     const c2 = document.getElementById('chk-pdpa').checked;
-    const lockMsg = document.getElementById('sig-lock-msg');
-    const buildBtn = document.getElementById('build-btn');
-
-    if (c1 && c2) {
-      lockMsg.style.display = 'none';
-      buildBtn.disabled = false;
-    } else {
-      lockMsg.style.display = 'flex';
-      buildBtn.disabled = true;
-    }
+    document.getElementById('sig-lock-msg').style.display = (c1 && c2) ? 'none' : 'flex';
+    document.getElementById('build-btn').disabled = !(c1 && c2);
   }
 
   let accountNameEdited = false;
@@ -846,17 +904,14 @@
     }
   }
 
-  function clearSignature() {
-    signaturePad.clear();
-  }
+  function clearSignature() { signaturePad.clear(); }
 
   function updateRate() {
     const pos = document.getElementById('position').value;
     const rateEl = document.getElementById('rate');
     if (pos.includes('Biker')) rateEl.value = '8 บาทต่อชิ้น';
-    else if (pos.includes('กรุงเทพและสมุทรปราการ')) rateEl.value = '13 บาทต่อชิ้น';
     else if (pos.includes('ปทุมธานี')) rateEl.value = '12 บาทต่อชิ้น';
-    else if (pos.includes('รถยนต์ (4W Driver)')) rateEl.value = '13 บาทต่อชิ้น';
+    else rateEl.value = '13 บาทต่อชิ้น';
   }
 
   function previewImage(input, imgId, emptyId) {
@@ -870,10 +925,6 @@
         if (emptyEl) emptyEl.style.display = 'none';
       };
       reader.readAsDataURL(input.files[0]);
-    } else {
-      imgEl.src = '';
-      imgEl.style.display = 'none';
-      if (emptyEl) emptyEl.style.display = 'block';
     }
   }
 
@@ -886,7 +937,6 @@
       p4: document.querySelectorAll('.doc-group-p4')
     };
     document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-
     if (mode === 'all') {
       Object.values(groups).forEach(list => list.forEach(el => el.style.display = 'block'));
       document.getElementById('tab-all').classList.add('active');
@@ -898,7 +948,7 @@
     }
   }
 
-  function buildDocuments() {
+  async function buildDocuments() {
     if (!document.getElementById('chk-contract').checked || !document.getElementById('chk-pdpa').checked) {
       alert('กรุณาอ่านและติ๊กยอมรับสัญญาจ้างขนส่งและหนังสือยินยอม PDPA ก่อนครับ');
       return;
@@ -949,6 +999,26 @@
       return;
     }
 
+    const loader = document.getElementById('loading-overlay');
+    loader.style.display = 'flex';
+    document.getElementById('loading-text').innerText = 'กำลังบันทึกข้อมูลลง Google Sheets...';
+
+    try {
+      const response = await fetch(SCRIPT_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify(values)
+      });
+      const result = await response.json();
+      if (result.status !== 'success') throw new Error(result.message || 'บันทึกข้อมูลไม่สำเร็จ');
+      adminRecords = [];
+    } catch (err) {
+      alert('บันทึกข้อมูลไม่สำเร็จ: ' + err.message);
+      loader.style.display = 'none';
+      return;
+    }
+
+    loader.style.display = 'none';
     document.querySelectorAll('[data-bind]').forEach(el => {
       const key = el.getAttribute('data-bind');
       if (values[key] !== undefined) el.innerText = values[key];
@@ -956,6 +1026,7 @@
 
     const sigData = signaturePad.toDataURL();
     document.querySelectorAll('.bind-sig').forEach(img => img.src = sigData);
+    document.getElementById('admin-tbody').dataset.fromAdmin = '0';
 
     switchDocView('all');
     document.getElementById('form-section').style.display = 'none';
@@ -963,65 +1034,9 @@
     window.scrollTo(0, 0);
   }
 
-  function backToForm() {
-    document.getElementById('preview-section').style.display = 'none';
-    document.getElementById('form-section').style.display = 'block';
-  }
-
-  async function submitAndExportPDF() {
+  function printCurrentDocument() {
     switchDocView('all');
-    if (document.fonts && document.fonts.ready) {
-      await document.fonts.ready;
-    }
-
-    const loader = document.getElementById('loading-overlay');
-    const btn = document.getElementById('pdf-btn');
-    loader.style.display = 'flex';
-    btn.disabled = true;
-
-    const name = document.getElementById('fullName').value.trim();
-
-    try {
-      const payload = {
-        employeeCode: document.getElementById('employeeCode').value.trim() || '-',
-        fullName: name,
-        age: document.getElementById('age').value.trim(),
-        idCard: document.getElementById('idCard').value.trim(),
-        phone: document.getElementById('phone').value.trim(),
-        address: document.getElementById('address').value.trim(),
-        registeredAddress: document.getElementById('registeredAddress').value.trim(),
-        emerName: document.getElementById('emerName').value.trim(),
-        emerRelation: document.getElementById('emerRelation').value.trim(),
-        emerPhone: document.getElementById('emerPhone').value.trim(),
-        position: document.getElementById('position').value,
-        rate: document.getElementById('rate').value.trim(),
-        plateNumber: document.getElementById('plateNumber').value.trim() || '-',
-        hubLocation: document.getElementById('hubLocation').value.trim(),
-        bankName: document.getElementById('bankName').value.trim(),
-        bankAccountName: document.getElementById('bankAccountName').value.trim(),
-        bankAccount: document.getElementById('bankAccount').value.trim()
-      };
-
-      const response = await fetch(SCRIPT_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-        body: JSON.stringify(payload)
-      });
-
-      const result = await response.json();
-      if (result.status !== 'success') {
-        throw new Error(result.message || 'บันทึกข้อมูลไม่สำเร็จ');
-      }
-
-      loader.style.display = 'none';
-      alert('บันทึกข้อมูลลง Google Sheets เรียบร้อยแล้ว ระบบจะเปิดหน้าต่างพิมพ์ เพื่อให้คุณกด "บันทึกเป็น PDF / Save as PDF" บน Mac ได้เลยครับ');
-      window.print();
-    } catch (err) {
-      alert('ซิงค์ข้อมูลไม่สำเร็จ: ' + err.message);
-    } finally {
-      loader.style.display = 'none';
-      btn.disabled = false;
-    }
+    window.print();
   }
 </script>
 
